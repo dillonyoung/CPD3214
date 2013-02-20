@@ -1,4 +1,6 @@
 <?php
+
+// Declare variables
 $database_host = "localhost";
 $database_username = "";
 $database_password = "";
@@ -13,18 +15,25 @@ $error_name = "";
 $error_password1 = "";
 $error_password2 = "";
 
+// Check to see if the database configuration file exists
 if (file_exists("database.config")) {
+	
+	// Check to see if the page has been submitted and the section is for configuring the user
 	if (isset($_POST['submit']) && isset($_GET['action']) && $_GET['action'] == 'configuser') {
+		
+		// Get the values entered by the user
 		$user_username = $_POST['user_username'];
 		$user_password1 = $_POST['user_password1'];
 		$user_password2 = $_POST['user_password2'];
 		
+		// Check to see if any of the values are blank
 		if (empty($user_username)) { $error_username = "The username can not be blank"; }
 		if (empty($user_password1)) { $error_password1 = "The password can not be blank"; }
 		if (empty($user_password2)) { $error_password2 = "The password can not be blank"; }
 			
 		if (empty($error_username) && empty($error_password1) && empty($error_password2)) {
 			
+			// Check to see if the passwords match
 			if ($user_password1 != $user_password2) {
 				$error_password1 = "Passwords entered do not match";
 				displayAdminForm($user_username, $user_password1, $user_password2, $error_username, $error_password1, $error_password2);
@@ -39,18 +48,25 @@ if (file_exists("database.config")) {
 		displayAdminForm($user_username, $user_password1, $user_password2, $error_username, $error_password1, $error_password2);
 	}
 } else {
+	
+	// Check to see if the page has been submitted and the section is for configuring the database
 	if (isset($_POST['submit']) && isset($_GET['action']) && $_GET['action'] == 'configdatabase') {
+		
+		// Get the values entered by the user
 		$database_host = $_POST['database_host'];
 		$database_username = $_POST['database_username'];
 		$database_password = $_POST['database_password'];
 		$database_name = $_POST['database_name'];
 		
+		// Check to see if any of the values are blank
 		if (empty($database_host)) { $error_host = "The database host can not be blank"; }
 		if (empty($database_username)) { $error_username = "The database username can not be blank"; }
 		if (empty($database_password)) { $error_password = "The database password can not be blank"; }
 		if (empty($database_name)) { $error_name = "The database name can not be blank"; }
 			
 		if (empty($error_host) && empty($error_username) && empty($error_password) && empty($error_name)) {
+			
+			// Update the database configuration and check to see if it is valid
 			$rvalue = $this->updateDatabaseConfig($database_host, $database_username, $database_password, $database_name);
 
 			if ($rvalue == Engine::DATABASE_ERROR_INVALID_USERNAME_PASSWORD) {
@@ -74,6 +90,20 @@ if (file_exists("database.config")) {
 	}
 }
 
+/**
+ * Displays the database configuration form to the user
+ *
+ * @param mixed $db_host The database host name
+ * @param mixed $db_username The database username
+ * @param mixed $db_password The database password
+ * @param mixed $db_name The database name
+ * @param mixed $err_host The error description for the host name
+ * @param mixed $err_username The error description for the username
+ * @param mixed $err_password The error description for the password
+ * @param mixed $err_name The error description for the database name
+ * @return mixed Nothing
+ *
+ */
 function displayDatabaseForm($db_host, $db_username, $db_password, $db_name, $err_host = "", $err_username = "", $err_password = "", $err_name = "") {
 ?>
 <h2>Configure Database (Step 1 of 3)</h2>
@@ -93,6 +123,18 @@ if (!empty($err_host) || !empty($err_username) || !empty($err_password) || !empt
 <?php
 }
 
+/**
+ * Displays the administrator configuration form to the user
+ *
+ * @param mixed $user_username The username for the administrator
+ * @param mixed $user_password1 The first password for the administrator
+ * @param mixed $user_password2 The second password for the administrator
+ * @param mixed $err_username The error description for the administrator username
+ * @param mixed $err_password1 The error description for the administrator password1
+ * @param mixed $err_password2 The error description for the administrator password2
+ * @return mixed Nothing
+ *
+ */
 function displayAdminForm($user_username, $user_password1, $user_password2, $err_username, $err_password1, $err_password2) {
 ?>
 <h2>Configure Administrator Account (Step 2 of 3)</h2>
@@ -111,6 +153,12 @@ if (!empty($err_username) || !empty($err_password1) || !empty($err_password2)) {
 <?php	
 }
 
+/**
+ * Displays the finished configuring the system screen to the user
+ *
+ * @return mixed Nothing
+ *
+ */
 function displayFinished() {
 ?>
 <h2>Configuration Finished (Step 3 of 3)</h2>
