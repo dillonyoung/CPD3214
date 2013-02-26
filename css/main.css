@@ -1,176 +1,212 @@
 * 
 {
-	outline: 0px solid red;
-	padding: 0px;
-	margin: 0px;
+    outline: 0px solid red;
+    padding: 0px;
+    margin: 0px;
 }
 
 a:link, a:visited, a:active
 {
-	text-decoration: none;
-	color: Blue;
-	font-weight: 900;
-	font-family: Arial;
+    text-decoration: none;
+    color: Blue;
+    font-weight: 900;
+    font-family: Arial;
 }
 
 a:hover
 {
-	text-decoration: none;
-	color: Red;
-	font-weight: 900;
-	font-family: Arial;
+    text-decoration: none;
+    color: Red;
+    font-weight: 900;
+    font-family: Arial;
 }
 
 html, body 
 {
-	height: 100%;
+    height: 100%;
 }
 
 body 
 {
-	background-color: Gray;
+    background-color: Gray;
+}
+
+#status_message 
+{
+    position: fixed;
+    display: none;
+    margin-left: -255px;
+    width: 500px;
+    top: 10px;
+    left: 50%;
+    height: 20px;
+    padding: 5px;
+    text-align: center;
+    font-weight: bold;
+    color: White;
+    opacity: 0.9;
+    -webkit-box-shadow: 5px 10px 20px rgba(50, 50, 50, 0.5);
+    -moz-box-shadow: 5px 10px 20px rgba(50, 50, 50, 0.5);
+    box-shadow: 5px 10px 20px rgba(50, 50, 50, 0.5);
+}
+
+.status_message_good 
+{
+    background-color: #99CC99;
+    border: 3px solid #33AA33;
+}
+
+.status_message_bad
+{
+    background-color: #CC9999;
+    border: 3px solid #AA3333;
 }
 
 header, footer, section 
 {
-	margin: 0px auto;
-	width: 900px;
-	background-color: White;
+    margin: 0px auto;
+    width: 900px;
+    background-color: White;
 }
 
 header 
 {
-	height: 80px;
+    height: 80px;
 }
 
 header > * 
 {
-	padding: 5px 15px;
+    padding: 5px 15px;
 }
 
 header > h4 
 {
-	color: Gray;
+    color: Gray;
 }
 
 header > h1, header > h4 
 {
-	float: left;
-	clear: left;
+    float: left;
+    clear: left;
 }
 
 header > #login_area
 {
-	float: right;
+    float: right;
 }
 
 section 
 {
-	min-height: 100%;
+    min-height: 100%;
 }
 
 section > * 
 {
-	padding: 5px 15px;
+    padding: 5px 15px;
 }
 
 section p 
 {
-	padding-bottom: 10px;
+    padding-bottom: 10px;
 }
 
 section p.button 
 {
-	text-align: center;
+    text-align: center;
 }
 
 section label 
 {
-	width: 20%;
-	font-weight: bold;
-	display: inline-block;
+    width: 20%;
+    font-weight: bold;
+    display: inline-block;
 }
 
 section label.error 
 {
-	color: Red;
-	font-weight: normal;
-	width: 50%;
-	padding-left: 10px;
+    color: Red;
+    font-weight: normal;
+    width: 50%;
+    padding-left: 10px;
 }
 
 section p.error 
 {
-	color: Red;
+    color: Red;
 }
 
 section input 
 {
-	padding: 5px;
+    padding: 5px;
 }
 
 section input[type="submit"] 
 {
-	border: 1px solid #777777;
-	background: #6e9e2d;
-	padding: 10px;
-	cursor: pointer;
-	color: White;
-	font-weight: bold;
-	font-size: 12pt;
-	font-variant: small-caps;
-	width: 160px;
-	-webkit-border-radius: 10px;
-	-moz-border-radius: 10px;
-	border-radius: 10px;
+    border: 1px solid #777777;
+    background: #6e9e2d;
+    padding: 10px;
+    cursor: pointer;
+    color: White;
+    font-weight: bold;
+    font-size: 12pt;
+    font-variant: small-caps;
+    width: 160px;
+    -webkit-border-radius: 10px;
+    -moz-border-radius: 10px;
+    border-radius: 10px;
 }
 
 section .window_hold
 {
-	display: block;
-	margin: 0px auto;
+    display: block;
+    margin: 0px auto;
 }
 
 section .window 
 {
-	border: 1px solid Black;
-	width: 80%;
-	margin: 0px auto;
-	-webkit-border-radius: 10px;
-	-moz-border-radius: 10px;
-	border-radius: 10px;
+    border: 1px solid Black;
+    width: 80%;
+    margin: 0px auto;
+    -webkit-border-radius: 10px;
+    -moz-border-radius: 10px;
+    border-radius: 10px;
 
 }
 
 section .window_header 
 {
-	background-color: Black;
-	font-variant: small-caps;
-	color: White;
-	font-size: 16pt;
-	font-weight: bold;
-	padding: 5px 10px;
-	-webkit-border-top-right-radius: 10px;
-	-webkit-border-top-left-radius: 10px;
-	-moz-border-radius-topright: 10px;
-	-moz-border-radius-topleft: 10px;
-	border-top-right-radius: 10px;
-	border-top-left-radius: 10px;
+    background-color: Black;
+    font-variant: small-caps;
+    color: White;
+    font-size: 16pt;
+    font-weight: bold;
+    padding: 5px 10px;
+    -webkit-border-top-right-radius: 10px;
+    -webkit-border-top-left-radius: 10px;
+    -moz-border-radius-topright: 10px;
+    -moz-border-radius-topleft: 10px;
+    border-top-right-radius: 10px;
+    border-top-left-radius: 10px;
 }
 
 section .window_body 
 {
-	padding: 5px 10px;
+    padding: 5px 10px;
 }
 
 footer 
 {
-	height: 40px;
+    height: 40px;
 }
 
 footer > p 
 {
-	color: Gray;
-	text-align: center;
-	font-size: 10px;
+    color: Gray;
+    text-align: center;
+    font-size: 10px;
+}
+
+#login_form 
+{
+    display: none;
 }
