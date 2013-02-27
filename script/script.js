@@ -9,6 +9,10 @@ $(document).ready(function () {
         }
 
     });
+
+    $('h1#site_title').click(function () {
+        window.location.assign('./');
+    });
 });
 
 function showLoginDialog(result) {
@@ -57,8 +61,11 @@ function showLoginDialog(result) {
 
 function showLogoutDialog(result) {
     var loginform;
-    loginform = result.username + '&nbsp;&nbsp;' +
-                '<a href=\"#\" id=\"logout\">Logout</a>';
+    loginform = result.username + '&nbsp;&nbsp;';
+    if (result.level == 2) {
+        loginform += '<a href=\"manage.php\">Manage</a>&nbsp;&nbsp;';
+    }
+    loginform += '<a href=\"#\" id=\"logout\">Logout</a>';
     $('#login_area').html(loginform);
 
     $('a#logout').click(function () {
@@ -89,9 +96,11 @@ function showLogoutDialog(result) {
 function displayMessage(message, state) {
     $('#status_message').html(message);
     if (state == 1) {
-        $('#status_message').attr('class', 'status_message_good');
+        $('#status_message').attr('class', 'status_message_valid');
     } else if (state == 2) {
-        $('#status_message').attr('class', 'status_message_bad');
+        $('#status_message').attr('class', 'status_message_invalid');
+    } else if (state == 3) {
+        $('#status_message').attr('class', 'status_message_warn');
     }
-    $('#status_message').fadeIn(400).delay(4000).fadeOut(400);
+    $('#status_message').fadeIn(500).delay(3000).fadeOut(500);
 }

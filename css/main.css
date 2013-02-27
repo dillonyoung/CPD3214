@@ -50,16 +50,22 @@ body
     box-shadow: 5px 10px 20px rgba(50, 50, 50, 0.5);
 }
 
-.status_message_good 
+.status_message_valid
 {
     background-color: #99CC99;
     border: 3px solid #33AA33;
 }
 
-.status_message_bad
+.status_message_invalid
 {
     background-color: #CC9999;
     border: 3px solid #AA3333;
+}
+
+.status_message_warn 
+{
+    background-color: #CCCC33;
+    border: 3px solid #AAAA00;
 }
 
 header, footer, section 
@@ -77,6 +83,11 @@ header
 header > * 
 {
     padding: 5px 15px;
+}
+
+header > h1 
+{
+    cursor: pointer;
 }
 
 header > h4 

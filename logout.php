@@ -1,7 +1,7 @@
 <?php
-	
-	$status = 0;
 	$username = "";
+	$status = 0;
+	$level = 0;
 	
 	include_once('engine.php');
 
@@ -19,8 +19,11 @@
 	}
 	
 	$json_data = array('status' => $status,
-		'username' => $username
+		'username' => $username,
+		'level' => $level
 		);
 	$json_encoded = json_encode($json_data, JSON_FORCE_OBJECT);
+	
+	header('Content-type: application/json');
 	echo $json_encoded;
 ?>

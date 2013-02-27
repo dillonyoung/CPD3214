@@ -25,14 +25,14 @@
 		const USER_STATUS_INVALID_LOGIN = 34;
 		const USER_STATUS_HAS_BEEN_LOGGED_OUT = 35;
 		const NO_ERROR_STATUS = 0;
+		
+		const FEATURE_SUPPORT_DATABASE = 2;
 	
 		// Declare variables
 		private $modules = array();
+		private $database_module;
 		private $database_connection;
-		private $database_host;
-		private $database_username;
-		private $database_password;
-		private $database_name;
+
 	
 		/**
 		 * The constructor for the class
@@ -53,14 +53,22 @@
 
 			// Load any installed modules
 			$this->loadModules();
+			
+			// Check for a module which handles database functions
+			$this->database_module = -1;
 			for ($i = 0; $i < count($this->modules); $i++) {
 				if ($this->modules[$i] != null) {
-
+					if ($this->modules[$i]->getFeatures() == Engine::FEATURE_SUPPORT_DATABASE) {
+						$this->database_module = $i;
+					}
 				}
 			}
-		
-			// Load the database configuration
-			$this->loadDatabaseConfiguration();
+
+			if ($this->database_module == -1) {
+				die("No database module installed!");
+			} else {
+				$this->database_connection = $this->modules[$this->database_module]->getDatabaseConnection();
+			}
 		}
 	
 		/**
@@ -70,91 +78,13 @@
 		 *
 		 */	
 		public function __destruct() {
-			$this->closeDatabaseConnection();
-		}
-	
-		/**
-		 * Updates the database configuration information and tests the connection
-		 *
-		 * @param mixed $db_host The database host name to be used
-		 * @param mixed $db_username The database username to be used
-		 * @param mixed $db_password The database password to be used
-		 * @param mixed $db_name The database name to be used
-		 * @return mixed Returns the status code of the database connection check
-		 *
-		 */	
-		private function updateDatabaseConfig($db_host, $db_username, $db_password, $db_name) {
-		
-			// Update the database configuration
-			$this->database_host = $db_host;
-			$this->database_username = $db_username;
-			$this->database_password = $db_password;
-			$this->database_name = $db_name;
-		
-			// Test the connection and if successful save the configuration
-			$rvalue = $this->testDatabaseConnection();
-			if ($rvalue == Engine::DATABASE_ERROR_NO_ERROR) {
-				$rvalue = $this->saveDatabaseConfiguration();
-			}
-		
-			// Return the result status
-			return $rvalue;
-		}
-	
-		/**
-		 * Tests the database connection using the stored database configuration information
-		 *
-		 * @return mixed Returns the status code of the database test
-		 *
-		 */	
-		private function testDatabaseConnection() {
-		
-			// Set initial value
-			$rvalue = Engine::DATABASE_ERROR_NO_ERROR;
-		
-			// Attempt to connection to the MySQL server
-			$this->database_connection = mysql_connect($this->database_host, $this->database_username, $this->database_password);
-			if (!$this->database_connection) { 
-				$rvalue = Engine::DATABASE_ERROR_INVALID_USERNAME_PASSWORD;
-				$this->database_connection = null;
-			} else {
 			
-				// Attempt to select the database
-				$db_selected = mysql_select_db($this->database_name, $this->database_connection);
-				if (!$db_selected) {
-				
-					// Attempt to create the database since it does not exist
-					$db_created = mysql_query("CREATE DATABASE " . $this->database_name, $this->database_connection);
-					if ($db_created) {
-						$this->createDatabaseTables();
-						$rvalue = Engine::DATABASE_ERROR_NO_ERROR;
-					} else {
-						$rvalue = Engine::DATABASE_ERROR_COULD_NOT_CREATE_DATABASE;
-						$this->database_connection = null;
-					}	
-				} else {
-					$rvalue = Engine::DATABASE_ERROR_NO_ERROR;	
-				}
-			}
-		
-			// Return the result status
-			return $rvalue;
 		}
 	
-		private function saveDatabaseConfiguration() {
-			$rvalue = Engine::DATABASE_ERROR_NO_ERROR;
-			$database_file = fopen("database.config", "wt");
-			if (is_writable("database.config")) {
-				fwrite($database_file, base64_encode($this->database_host)."\n");
-				fwrite($database_file, base64_encode($this->database_username)."\n");
-				fwrite($database_file, base64_encode($this->database_password)."\n");
-				fwrite($database_file, base64_encode($this->database_name)."\n");
-			} else {
-				$rvalue = Engine::DATABASE_ERROR_COULD_NOT_SAVE_CONFIG;
-			}
-			fclose($database_file);
-			if ($rvalue == Engine::DATABASE_ERROR_COULD_NOT_SAVE_CONFIG) {
-				unlink("database.config");
+		private function updateDatabaseConfig($db_host, $db_username, $db_password, $db_name) {
+			$rvalue = Engine::DATABASE_ERROR_COULD_NOT_ACCESS_DATABASE;
+			if ($this->database_module != null) {
+				$rvalue = $this->modules[$this->database_module]->updateDatabaseConfig($db_host, $db_username, $db_password, $db_name);	
 			}
 			return $rvalue;
 		}
@@ -180,7 +110,7 @@
 			if (isset($_SESSION['configured'])) {
 				echo "Configured";
 			} else {
-				include('page_firstrun_database.php');
+				include('page-firstrun-database.php');
 			}	
 		}
 	
@@ -204,51 +134,58 @@
 			echo "Powered by Simple CMS (".Engine::ENGINE_VERSION.")";
 		}
 	
-		public function getUserFirstName($username) {
-			$rvalue = mysql_select_db($this->database_name, $this->database_connection);
-			if ($rvalue) {
-				$rvalue = mysql_query("SELECT firstname FROM accounts WHERE username = '".$username."';");
-				if ($rvalue) {
-					if (mysql_num_rows($rvalue) > 0) {
-						while($row = mysql_fetch_array($rvalue)) {
-							$firstname = $row['firstname'];
-						}
-						$rvalue = $firstname;
-					} else {
-						$rvalue = Engine::DATABASE_ERROR_NO_QUERY_RESULTS;
-					}
-				} else {
-					$rvalue = Engine::DATABASE_ERROR_QUERY_ERROR;	
-				}	
+		public function getUserFirstName() {
+			$username = "";
+			if (isset($_SESSION['username'])) {
+				$username = $_SESSION['username'];
+			}
+			$result = $this->modules[$this->database_module]->queryDatabase("SELECT firstname FROM accounts WHERE username = '".$username."';");
+			
+			if (count($result) > 0) {
+				foreach ($result as $resultrow) {
+					$firstname = $resultrow[0];	
+				}
+				$rvalue = $firstname;
 			} else {
-				$rvalue = Engine::DATABASE_ERROR_COULD_NOT_ACCESS_DATABASE;	
+				$rvalue = Engine::DATABASE_ERROR_NO_QUERY_RESULTS;
+			}
+			return $rvalue;
+		}
+		
+		public function getUserAccessLevel() {
+			$username = "";
+			if (isset($_SESSION['username'])) {
+				$username = $_SESSION['username'];
+			}
+			$result = $this->modules[$this->database_module]->queryDatabase("SELECT accesslevel FROM accounts WHERE username = '".$username."';");
+			
+			if (count($result) > 0) {
+				foreach ($result as $resultrow) {
+					$accesslevel = $resultrow[0];	
+				}
+				$rvalue = $accesslevel;
+			} else {
+				$rvalue = Engine::DATABASE_ERROR_NO_QUERY_RESULTS;
 			}
 			return $rvalue;
 		}
 	
-		public function attemptAdminLogin($username, $password) {
-			$rvalue = mysql_select_db($this->database_name, $this->database_connection);
-			if ($rvalue) {
-				$rvalue = mysql_query("SELECT password FROM accounts WHERE username = '".$username."' AND accesslevel = ".Engine::USER_ACCOUNT_TYPE_ADMIN.";");
-				if ($rvalue) {
-					if (mysql_num_rows($rvalue) > 0) {
-						while($row = mysql_fetch_array($rvalue)) {
-							$cpassword = $row['password'];
-						}
-						if (crypt($password, $cpassword) == $cpassword) {
-							$rvalue = Engine::USER_STATUS_VALID_LOGIN;
-							$this->loginUser($username, $password, Engine::USER_ACCOUNT_TYPE_ADMIN);
-						} else {
-							$rvalue = Engine::USER_STATUS_INVALID_LOGIN;
-						}
-					} else {
-						$rvalue = Engine::DATABASE_ERROR_NO_QUERY_RESULTS;
-					}
+		public function attemptLogin($username, $password) {
+			$result = $this->modules[$this->database_module]->queryDatabase("SELECT password, accesslevel FROM accounts WHERE username = '".$username."';");
+			
+			if (count($result) > 0) {
+				foreach ($result as $resultrow) {
+					$cpassword = $resultrow[0];	
+					$accesslevel = $resultrow[1];
+				}
+				if (crypt($password, $cpassword) == $cpassword) {
+					$rvalue = Engine::USER_STATUS_VALID_LOGIN;
+					$this->loginUser($username, $password, $accesslevel);
 				} else {
-					$rvalue = Engine::DATABASE_ERROR_QUERY_ERROR;	
-				}	
+					$rvalue = Engine::USER_STATUS_INVALID_LOGIN;
+				}
 			} else {
-				$rvalue = Engine::DATABASE_ERROR_COULD_NOT_ACCESS_DATABASE;	
+				$rvalue = Engine::DATABASE_ERROR_NO_QUERY_RESULTS;
 			}
 			return $rvalue;
 		}
@@ -285,10 +222,6 @@
 			echo "</script>";
 		}
 	
-		private function printMessage($message) {
-			echo $message."<br />";	
-		}
-	
 		public function checkUserLoggedIn() {
 			$rvalue = Engine::USER_STATUS_NOT_LOGGED_IN;
 			if (isset($_SESSION['username'])) {
@@ -313,66 +246,17 @@
 		}
 	
 		private function checkIfAdminUserExists() {
-			$rvalue = mysql_select_db($this->database_name, $this->database_connection);
-			if ($rvalue) {
-				$rvalue = mysql_query("SELECT * FROM accounts WHERE accesslevel = ".Engine::USER_ACCOUNT_TYPE_ADMIN.";");
-				if ($rvalue) {
-					if (mysql_num_rows($rvalue) > 0) {
-						$rvalue = Engine::DATABASE_ERROR_NO_ERROR;
-					} else {
-						$rvalue = Engine::DATABASE_ERROR_NO_QUERY_RESULTS;
-					}
-				} else {
-					$rvalue = Engine::DATABASE_ERROR_QUERY_ERROR;	
-				}	
+			$result = $this->modules[$this->database_module]->queryDatabase("SELECT * FROM accounts WHERE accesslevel = ".Engine::USER_ACCOUNT_TYPE_ADMIN.";");
+			
+			if (count($result) > 0) {
+				$rvalue = Engine::DATABASE_ERROR_NO_ERROR;
 			} else {
-				$rvalue = Engine::DATABASE_ERROR_COULD_NOT_ACCESS_DATABASE;	
+				$rvalue = Engine::DATABASE_ERROR_NO_QUERY_RESULTS;
 			}
-			return $rvalue;
-		}
-	
-		private function loadDatabaseConfiguration() {
-			if (file_exists("database.config")) {
-				$filedata = file("database.config");
-				if (count($filedata) == 4) {
-					$this->database_host = base64_decode($filedata[0]);
-					$this->database_username = base64_decode($filedata[1]);
-					$this->database_password = base64_decode($filedata[2]);
-					$this->database_name = base64_decode($filedata[3]);
-					$this->openDatabaseConnection();
-				}
-			}
-		}
-	
-		private function openDatabaseConnection() {
-			$rvalue = Engine::DATABASE_ERROR_NO_ERROR;
-			$this->database_connection = mysql_connect($this->database_host, $this->database_username, $this->database_password);
-			if (!$this->database_connection) { 
-				$rvalue = Engine::DATABASE_ERROR_INVALID_USERNAME_PASSWORD;
-				$this->database_connection = null;
-			} else {
-				$db_selected = mysql_select_db($this->database_name, $this->database_connection);
-				if (!$db_selected) {
-					$rvalue = Engine::DATABASE_ERROR_COULD_NOT_ACCESS_DATABASE;
-				} else {
-					$rvalue = Engine::DATABASE_ERROR_NO_ERROR;	
-				}
-			}
-			return $rvalue;
-		}
-	
-		private function closeDatabaseConnection() {
-			$rvalue = Engine::DATABASE_ERROR_NO_ERROR;
-			if (mysql_close($this->database_connection)) {
-				$this->database_connection = null;
-			} else {
-				$rvalue = Engine::DATABASE_ERROR_COULD_NOT_CLOSE_CONNECTION;
-			}	
 			return $rvalue;
 		}
 	
 		private function loadModules() {
-		
 			if (file_exists('./modules')) {
 				if ($handle = opendir('./modules')) {
 					while (false !== ($entry = readdir($handle))) {
@@ -400,6 +284,21 @@
 				$moduleClass = null;
 			}
 			return $moduleClass;
+		}
+		
+		public function listModules() {
+			$rvalue = array();
+			
+			for ($i = 0; $i < count($this->modules); $i++) {
+				if ($this->modules[$i] != null) {
+					$rvalue[] = array("name" => $this->modules[$i]->getName(),
+						"version" => $this->modules[$i]->getVersion(),
+						"author" => $this->modules[$i]->getAuthor(),
+						"description" => $this->modules[$i]->getDescription());
+				}
+			}
+			
+			return $rvalue;
 		}
 	}
 ?>

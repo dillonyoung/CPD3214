@@ -1,0 +1,36 @@
+nav#left
+{
+    background-color: Red;
+    width: 20%;
+    padding: 0px;
+    float: left;
+}
+
+nav#left ul 
+{
+    background-color: rgb(125, 186, 240);
+    line-height: 40px;
+    list-style-type: none;
+}
+
+nav#left ul li:hover 
+{
+    background-color: rgb(83, 142, 213);
+}
+
+nav#left ul li a 
+{
+    color: White;
+    text-decoration: none;
+}
+
+article#manage
+{
+    float: right;
+    width: 76%;
+}
+
+article#manage > h1 
+{
+    font-size: 30px;
+}
