@@ -176,7 +176,7 @@ section .window_hold
 section .window 
 {
     border: 1px solid Black;
-    width: 80%;
+    width: 96%;
     margin: 0px auto;
     -webkit-border-radius: 10px;
     -moz-border-radius: 10px;

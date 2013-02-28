@@ -1,10 +1,14 @@
 <?php
 
-include_once('engine.php');
+	include_once('engine.php');
 
-$engine = new Engine;
+	$engine = new Engine;
 
-include('header.php');
-$engine->loadPageContents();
-include('footer.php');
+	if ($engine->isConfigured()) {
+		include('header.php');
+		//$engine->loadPageContents();
+		include('footer.php');
+	} else {
+		header('location: ./configure.php');
+	}
 ?>

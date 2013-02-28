@@ -10,8 +10,10 @@
 		private $database_username;
 		private $database_password;
 		private $database_name;
+		private $database_connection;
 		
 		public function __construct() {
+			$this->database_connection = null;
 			$this->loadDatabaseConfiguration();
 		}
 		
@@ -40,7 +42,11 @@
 		}
 		
 		public function getDatabaseConnection() {
-			return $this->database_connection;	
+			if ($this->database_connection != null) {
+				return $this->database_connection;
+			} else {
+				return null;	
+			}
 		}
 		
 		public function queryDatabase($query) {
@@ -48,10 +54,14 @@
 			$selectdb = mysql_select_db($this->database_name, $this->database_connection);
 			if ($selectdb) {
 				$queryresult = mysql_query($query);
-				if ($queryresult) {
-					if (mysql_num_rows($queryresult) > 0) {
-						while($row = mysql_fetch_row($queryresult)) {
-							$rvalue[] = $row;
+				if ($queryresult === true || $queryresult === false) {
+					return $queryresult;
+				} else {
+					if ($queryresult) {
+						if (mysql_num_rows($queryresult) > 0) {
+							while($row = mysql_fetch_row($queryresult)) {
+								$rvalue[] = $row;
+							}
 						}
 					}
 				}
@@ -59,25 +69,16 @@
 			return $rvalue;
 		}
 		
-		public function updateDatabaseConfig($db_host, $db_username, $db_password, $db_name) {
+		public function updateConfiguration($db_host, $db_username, $db_password, $db_name) {
 			
 			// Update the database configuration
 			$this->database_host = $db_host;
 			$this->database_username = $db_username;
 			$this->database_password = $db_password;
 			$this->database_name = $db_name;
-			
-			// Test the connection and if successful save the configuration
-			$rvalue = $this->testDatabaseConnection();
-			if ($rvalue == Engine::DATABASE_ERROR_NO_ERROR) {
-				$rvalue = $this->saveDatabaseConfiguration();
-			}
-			
-			// Return the result status
-			return $rvalue;
 		}
 		
-		private function testDatabaseConnection() {
+		public function testConnection() {
 			
 			// Set initial value
 			$rvalue = Engine::DATABASE_ERROR_NO_ERROR;
@@ -92,18 +93,9 @@
 				// Attempt to select the database
 				$db_selected = mysql_select_db($this->database_name, $this->database_connection);
 				if (!$db_selected) {
-					
-					// REDO CODE HERE!!!!!!!
-					//// Attempt to create the database since it does not exist
-					//$db_created = mysql_query("CREATE DATABASE " . $this->database_name, $this->database_connection);
-					//if ($db_created) {
-					//	$this->createDatabaseTables();
-					//	$rvalue = Engine::DATABASE_ERROR_NO_ERROR;
-					//} else {
-					//	$rvalue = Engine::DATABASE_ERROR_COULD_NOT_CREATE_DATABASE;
-					//	$this->database_connection = null;
-					//}	
+					$rvalue = Engine::DATABASE_ERROR_NO_DATABASE;
 				} else {
+					$this->saveDatabaseConfiguration();
 					$rvalue = Engine::DATABASE_ERROR_NO_ERROR;	
 				}
 			}
@@ -162,11 +154,13 @@
 		
 		private function closeDatabaseConnection() {
 			$rvalue = Engine::DATABASE_ERROR_NO_ERROR;
-			if (mysql_close($this->database_connection)) {
-				$this->database_connection = null;
-			} else {
-				$rvalue = Engine::DATABASE_ERROR_COULD_NOT_CLOSE_CONNECTION;
-			}	
+			if ($this->database_connection != null) {
+				if (mysql_close($this->database_connection)) {
+					$this->database_connection = null;
+				} else {
+					$rvalue = Engine::DATABASE_ERROR_COULD_NOT_CLOSE_CONNECTION;
+				}	
+			}
 			return $rvalue;
 		}
 	}

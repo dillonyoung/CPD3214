@@ -17,6 +17,7 @@
 		const DATABASE_ERROR_COULD_NOT_CLOSE_CONNECTION = 5;
 		const DATABASE_ERROR_QUERY_ERROR = 6;
 		const DATABASE_ERROR_NO_QUERY_RESULTS = 7;
+		const DATABASE_ERROR_NO_DATABASE = 8;
 		const USER_ACCOUNT_TYPE_ADMIN = 2;
 		const USER_ACCOUNT_TYPE_NORMAL = 1;
 		const USER_STATUS_NOT_LOGGED_IN = 31;
@@ -31,7 +32,6 @@
 		// Declare variables
 		private $modules = array();
 		private $database_module;
-		private $database_connection;
 
 	
 		/**
@@ -81,22 +81,51 @@
 			
 		}
 	
-		private function updateDatabaseConfig($db_host, $db_username, $db_password, $db_name) {
+		public function updateDatabaseConfig($db_host, $db_username, $db_password, $db_name) {
 			$rvalue = Engine::DATABASE_ERROR_COULD_NOT_ACCESS_DATABASE;
-			if ($this->database_module != null) {
-				$rvalue = $this->modules[$this->database_module]->updateDatabaseConfig($db_host, $db_username, $db_password, $db_name);	
+			if ($this->database_module != -1) {
+				$rvalue = $this->modules[$this->database_module]->updateConfiguration($db_host, $db_username, $db_password, $db_name);	
+			}
+			return $rvalue;
+		}
+		
+		public function testDatabaseConnection() {
+			$rvalue = Engine::DATABASE_ERROR_COULD_NOT_ACCESS_DATABASE;
+			if ($this->database_module != -1) {
+				$rvalue = $this->modules[$this->database_module]->testConnection();		
+			}
+			if ($rvalue == Engine::DATABASE_ERROR_NO_ERROR) {
+				$this->createDatabaseTables();	
 			}
 			return $rvalue;
 		}
 	
 		private function createDatabaseTables() {
-			$rvalue = mysql_select_db($this->database_name, $this->database_connection);
-			if ($rvalue) {
-				$rvalue = mysql_query("CREATE TABLE accounts (id BIGINT NOT NULL AUTO_INCREMENT, PRIMARY KEY(id), username VARCHAR(50) NOT NULL, UNIQUE (username), password VARCHAR(50) NOT NULL, email VARCHAR(100), firstname VARCHAR(50) NOT NULL, lastname VARCHAR(50), accesslevel INT NOT NULL, dateregistered DATETIME NOT NULL DEFAULT NOW());", $this->database_connection);
-				$rvalue = mysql_query("CREATE TABLE categories (id BIGINT NOT NULL AUTO_INCREMENT, PRIMARY KEY(id), name VARCHAR(200) NOT NULL, UNIQUE (name))");
-				$rvalue = Engine::DATABASE_ERROR_NO_ERROR;
-			} else {
-				$rvalue = Engine::DATABASE_ERROR_COULD_NOT_ACCESS_DATABASE;
+			if ($this->modules[$this->database_module]->queryDatabase("DESC scms_comments;")) {
+				$this->modules[$this->database_module]->queryDatabase("DROP TABLE scms_comments;");
+			}
+			if ($this->modules[$this->database_module]->queryDatabase("DESC scms_posts;")) {
+				$this->modules[$this->database_module]->queryDatabase("DROP TABLE scms_posts;");
+			}
+			if ($this->modules[$this->database_module]->queryDatabase("DESC scms_categories;")) {
+				$this->modules[$this->database_module]->queryDatabase("DROP TABLE scms_categories;");
+			}
+			if ($this->modules[$this->database_module]->queryDatabase("DESC scms_accounts;")) {
+				$this->modules[$this->database_module]->queryDatabase("DROP TABLE scms_accounts;");
+			}
+			
+			$this->modules[$this->database_module]->queryDatabase("CREATE TABLE scms_accounts (id BIGINT NOT NULL AUTO_INCREMENT, PRIMARY KEY(id), username VARCHAR(50) NOT NULL, UNIQUE (username), password VARCHAR(50) NOT NULL, email VARCHAR(100), firstname VARCHAR(50) NOT NULL, lastname VARCHAR(50), accesslevel INT NOT NULL, dateregistered DATETIME NOT NULL DEFAULT NOW());");
+			$this->modules[$this->database_module]->queryDatabase("CREATE TABLE scms_categories (id BIGINT NOT NULL AUTO_INCREMENT, PRIMARY KEY(id), name VARCHAR(200) NOT NULL, UNIQUE (name));");
+			$this->modules[$this->database_module]->queryDatabase("CREATE TABLE scms_posts (id BIGINT NOT NULL AUTO_INCREMENT, PRIMARY KEY(id), title VARCHAR(200) NOT NULL, details TEXT NOT NULL, dateposted DATETIME NOT NULL DEFAULT NOW(), author BIGINT NOT NULL, FOREIGN KEY (author) REFERENCES scms_accounts(id), type INT NOT NULL, category BIGINT NOT NULL, FOREIGN KEY (category) REFERENCES scms_categories(id));");
+			$this->modules[$this->database_module]->queryDatabase("CREATE TABLE scms_comments (id BIGINT NOT NULL AUTO_INCREMENT, PRIMARY KEY(id), post BIGINT NOT NULL, FOREIGN KEY (post) REFERENCES scms_posts(id), dateposted DATETIME NOT NULL DEFAULT NOW(), author BIGINT NOT NULL, FOREIGN KEY (author) REFERENCES scms_accounts(id));");
+		}
+		
+		public function isConfigured() {
+			$rvalue = false;
+			if ($this->database_connection) {
+				if ($this->checkIfAdminUserExists() == Engine::DATABASE_ERROR_NO_ERROR) {
+					$rvalue = true;	
+				}
 			}
 			return $rvalue;
 		}
@@ -139,7 +168,11 @@
 			if (isset($_SESSION['username'])) {
 				$username = $_SESSION['username'];
 			}
-			$result = $this->modules[$this->database_module]->queryDatabase("SELECT firstname FROM accounts WHERE username = '".$username."';");
+			
+			$rvalue = Engine::DATABASE_ERROR_COULD_NOT_ACCESS_DATABASE;
+			if ($this->database_module != -1) {
+				$result = $this->modules[$this->database_module]->queryDatabase("SELECT firstname FROM scms_accounts WHERE username = '".$username."';");
+			}
 			
 			if (count($result) > 0) {
 				foreach ($result as $resultrow) {
@@ -157,7 +190,11 @@
 			if (isset($_SESSION['username'])) {
 				$username = $_SESSION['username'];
 			}
-			$result = $this->modules[$this->database_module]->queryDatabase("SELECT accesslevel FROM accounts WHERE username = '".$username."';");
+			
+			$rvalue = Engine::DATABASE_ERROR_COULD_NOT_ACCESS_DATABASE;
+			if ($this->database_module != -1) {
+				$result = $this->modules[$this->database_module]->queryDatabase("SELECT accesslevel FROM scms_accounts WHERE username = '".$username."';");
+			}
 			
 			if (count($result) > 0) {
 				foreach ($result as $resultrow) {
@@ -171,7 +208,10 @@
 		}
 	
 		public function attemptLogin($username, $password) {
-			$result = $this->modules[$this->database_module]->queryDatabase("SELECT password, accesslevel FROM accounts WHERE username = '".$username."';");
+			$rvalue = Engine::DATABASE_ERROR_COULD_NOT_ACCESS_DATABASE;
+			if ($this->database_module != -1) {
+				$result = $this->modules[$this->database_module]->queryDatabase("SELECT password, accesslevel FROM scms_accounts WHERE username = '".$username."';");
+			}
 			
 			if (count($result) > 0) {
 				foreach ($result as $resultrow) {
@@ -230,23 +270,25 @@
 			return $rvalue;
 		}
 	
-		private function addUser($username, $password, $accesslevel) {
-			$rvalue = mysql_select_db($this->database_name, $this->database_connection);
-			if ($rvalue) {
-				$rvalue = mysql_query("INSERT INTO accounts (username, password, firstname, accesslevel) VALUES('".$username."', '".crypt($password)."', 'Administrator', ".$accesslevel.");");
-				if ($rvalue) {
-					$rvalue = Engine::DATABASE_ERROR_NO_ERROR;
-				} else {
-					$rvalue = Engine::DATABASE_ERROR_QUERY_ERROR;
-				}
+		public function addUser($username, $password, $accesslevel) {			
+			$rvalue = Engine::DATABASE_ERROR_COULD_NOT_ACCESS_DATABASE;
+			if ($this->database_module != -1) {
+				$result = $this->modules[$this->database_module]->queryDatabase("INSERT INTO scms_accounts (username, password, firstname, accesslevel) VALUES('".$username."', '".crypt($password)."', 'Administrator', ".$accesslevel.");");
+			}
+			
+			if (count($result) > 0) {
+				$rvalue = Engine::DATABASE_ERROR_NO_ERROR;
 			} else {
-				$rvalue = Engine::DATABASE_ERROR_COULD_NOT_ACCESS_DATABASE;	
+				$rvalue = Engine::DATABASE_ERROR_NO_QUERY_RESULTS;
 			}
 			return $rvalue;
 		}
 	
 		private function checkIfAdminUserExists() {
-			$result = $this->modules[$this->database_module]->queryDatabase("SELECT * FROM accounts WHERE accesslevel = ".Engine::USER_ACCOUNT_TYPE_ADMIN.";");
+			$rvalue = Engine::DATABASE_ERROR_COULD_NOT_ACCESS_DATABASE;
+			if ($this->database_module != -1) {
+				$result = $this->modules[$this->database_module]->queryDatabase("SELECT * FROM scms_accounts WHERE accesslevel = ".Engine::USER_ACCOUNT_TYPE_ADMIN.";");
+			}
 			
 			if (count($result) > 0) {
 				$rvalue = Engine::DATABASE_ERROR_NO_ERROR;
