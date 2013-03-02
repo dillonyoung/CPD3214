@@ -14,6 +14,11 @@ $engine->setCookies();
 	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
 	<script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.10.1/jquery-ui.min.js"></script>
 	<script type="text/javascript" src="./script/script.js"></script>
+	<?php
+		if (strpos($_SERVER['SCRIPT_NAME'], "manage.php") !== false) {
+			echo "<script type=\"text/javascript\" src=\"./script/manage.js\"></script>\n";	
+		}
+	?>
 </head>
 <body>
 <div id="status_message"></div>

@@ -25,13 +25,18 @@
 		const USER_STATUS_VALID_LOGIN = 33;
 		const USER_STATUS_INVALID_LOGIN = 34;
 		const USER_STATUS_HAS_BEEN_LOGGED_OUT = 35;
+		const POST_NO_TYPE_CONFIGURED = 40;
 		const NO_ERROR_STATUS = 0;
 		
 		const FEATURE_SUPPORT_DATABASE = 2;
+		const FEATURE_SUPPORT_TEXT_POST = 4;
+		const FEATURE_SUPPORT_IMAGE_POST = 8;
+		const FEATURE_SUPPORT_YOUTUBE_POST = 16;
 	
 		// Declare variables
 		private $modules = array();
 		private $database_module;
+		private $textpost_module;
 
 	
 		/**
@@ -54,12 +59,17 @@
 			// Load any installed modules
 			$this->loadModules();
 			
-			// Check for a module which handles database functions
+			// Check for modules which support required features
 			$this->database_module = -1;
+			$this->textpost_module = -1;
+			
 			for ($i = 0; $i < count($this->modules); $i++) {
 				if ($this->modules[$i] != null) {
 					if ($this->modules[$i]->getFeatures() == Engine::FEATURE_SUPPORT_DATABASE) {
 						$this->database_module = $i;
+					}
+					if ($this->modules[$i]->getFeatures() == Engine::FEATURE_SUPPORT_TEXT_POST) {
+						$this->textpost_module = $i;	
 					}
 				}
 			}
@@ -68,6 +78,13 @@
 				die("No database module installed!");
 			} else {
 				$this->database_connection = $this->modules[$this->database_module]->getDatabaseConnection();
+			}
+			
+			if ($this->textpost_module == -1) {
+				die("No text post module installed");	
+			} else {
+				$this->modules[$this->textpost_module]->setDatabaseModule($this->modules[$this->database_module]);
+				//$this->modules[$this->textpost_module]->testDatabase();
 			}
 		}
 	
@@ -206,6 +223,28 @@
 			}
 			return $rvalue;
 		}
+		
+		public function getUserID() {
+			$username = "";
+			if (isset($_SESSION['username'])) {
+				$username = $_SESSION['username'];
+			}
+			
+			$rvalue = Engine::DATABASE_ERROR_COULD_NOT_ACCESS_DATABASE;
+			if ($this->database_module != -1) {
+				$result = $this->modules[$this->database_module]->queryDatabase("SELECT id FROM scms_accounts WHERE username = '".$username."';");
+			}
+			
+			if (count($result) > 0) {
+				foreach ($result as $resultrow) {
+					$userid = $resultrow[0];	
+				}
+				$rvalue = $userid;
+			} else {
+				$rvalue = Engine::DATABASE_ERROR_NO_QUERY_RESULTS;
+			}
+			return $rvalue;
+		}
 	
 		public function attemptLogin($username, $password) {
 			$rvalue = Engine::DATABASE_ERROR_COULD_NOT_ACCESS_DATABASE;
@@ -294,6 +333,23 @@
 				$rvalue = Engine::DATABASE_ERROR_NO_ERROR;
 			} else {
 				$rvalue = Engine::DATABASE_ERROR_NO_QUERY_RESULTS;
+			}
+			return $rvalue;
+		}
+		
+		public function submitNewPost($data) {
+			$rvalue = Engine::NO_ERROR_STATUS;
+			if (isset($data['type'])) {
+				switch ($data['type']) {
+					case Engine::FEATURE_SUPPORT_TEXT_POST:
+						$rvalue = $this->modules[$this->textpost_module]->addPost($data);
+						break;
+					default:
+						$rvalue = Engine::POST_NO_TYPE_CONFIGURED;
+						break;
+				}
+			} else {
+				$rvalue = Engine::POST_NO_TYPE_CONFIGURED;	
 			}
 			return $rvalue;
 		}

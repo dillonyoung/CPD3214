@@ -34,3 +34,8 @@ article#manage > h1
 {
     font-size: 30px;
 }
+
+#newposttype, #newtextpostentry
+{
+    display: none;
+}
