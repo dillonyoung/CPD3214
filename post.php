@@ -42,26 +42,6 @@
 					
 					break;	
 			}
-			
-			//$rvalue = $engine->attemptLogin($username, $password);
-			//if ($rvalue == Engine::USER_STATUS_VALID_LOGIN) {
-			//	$rvalue = $engine->getUserFirstName();
-			//	if ($rvalue == Engine::DATABASE_ERROR_COULD_NOT_ACCESS_DATABASE || $rvalue == Engine::DATABASE_ERROR_QUERY_ERROR || $rvalue == Engine::DATABASE_ERROR_NO_QUERY_RESULTS) {
-			//		$status = -1;	
-			//	} else {
-			//		$status = 1;
-			//		$username = $rvalue;
-			//		$rvalue = $engine->getUserAccessLevel();
-			//		if ($rvalue == Engine::DATABASE_ERROR_COULD_NOT_ACCESS_DATABASE || $rvalue == Engine::DATABASE_ERROR_QUERY_ERROR || $rvalue == Engine::DATABASE_ERROR_NO_QUERY_RESULTS) {
-			//			$status = -1;
-			//		} else {
-			//			$status = 1;
-			//			$level = $rvalue;
-			//		}
-			//	}
-			//} else {
-			//	$status = -1;
-			//}
 		}
 	}
 	

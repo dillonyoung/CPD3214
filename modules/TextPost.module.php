@@ -57,10 +57,10 @@
 			return $rvalue;
 		}
 		
-		public function testDatabase() {
-			$result = $this->database_module->queryDatabase("SELECT * FROM scms_accounts");
-			echo "yes";
-			print_r($result);		
+		public function createPostPreview($data) {
+			$rvalue = "";
+			$rvalue = htmlentities($data);
+			return $rvalue;	
 		}
 	}
 ?>

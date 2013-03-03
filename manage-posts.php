@@ -19,4 +19,7 @@
 <textarea name="txt_newtextpost_body" id="txt_newtextpost_body"></textarea>
 <button id="btn_manage_submit_newtextpost">Submit Post</button>
 </div>
-<p>This is a test</p>
+<div id="postlist"></div>
+<div id="dialog-confirm" title="Empty the recycle bin?">
+  <p>These items will be permanently deleted and cannot be recovered. Are you sure?</p>
+</div>

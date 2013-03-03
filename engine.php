@@ -146,6 +146,16 @@
 			}
 			return $rvalue;
 		}
+		
+		public function isUserAdmin() {
+			$rvalue = false;
+			if (isset($_SESSION['accesslevel'])) {
+				if ($_SESSION['accesslevel'] == Engine::USER_ACCOUNT_TYPE_ADMIN) {
+					$rvalue = true;	
+				}
+			}
+			return $rvalue;	
+		}
 	
 		public function loadPageContents() {
 			if ($this->database_connection) {
@@ -313,12 +323,12 @@
 			$rvalue = Engine::DATABASE_ERROR_COULD_NOT_ACCESS_DATABASE;
 			if ($this->database_module != -1) {
 				$result = $this->modules[$this->database_module]->queryDatabase("INSERT INTO scms_accounts (username, password, firstname, accesslevel) VALUES('".$username."', '".crypt($password)."', 'Administrator', ".$accesslevel.");");
-			}
-			
-			if (count($result) > 0) {
-				$rvalue = Engine::DATABASE_ERROR_NO_ERROR;
-			} else {
-				$rvalue = Engine::DATABASE_ERROR_NO_QUERY_RESULTS;
+				
+				if (count($result) > 0) {
+					$rvalue = Engine::DATABASE_ERROR_NO_ERROR;
+				} else {
+					$rvalue = Engine::DATABASE_ERROR_NO_QUERY_RESULTS;
+				}
 			}
 			return $rvalue;
 		}
@@ -327,12 +337,42 @@
 			$rvalue = Engine::DATABASE_ERROR_COULD_NOT_ACCESS_DATABASE;
 			if ($this->database_module != -1) {
 				$result = $this->modules[$this->database_module]->queryDatabase("SELECT * FROM scms_accounts WHERE accesslevel = ".Engine::USER_ACCOUNT_TYPE_ADMIN.";");
+				
+				if (count($result) > 0) {
+					$rvalue = Engine::DATABASE_ERROR_NO_ERROR;
+				} else {
+					$rvalue = Engine::DATABASE_ERROR_NO_QUERY_RESULTS;
+				}
 			}
+			return $rvalue;
+		}
+		
+		public function listPosts($start, $size) {
+			$rvalue = Engine::DATABASE_ERROR_COULD_NOT_ACCESS_DATABASE;
+			if ($this->database_module != -1) {
+				$result = $this->modules[$this->database_module]->queryDatabase("SELECT * FROM scms_posts LIMIT ".$start.", ".$size.";");
 			
-			if (count($result) > 0) {
-				$rvalue = Engine::DATABASE_ERROR_NO_ERROR;
-			} else {
-				$rvalue = Engine::DATABASE_ERROR_NO_QUERY_RESULTS;
+				if (count($result) > 0) {
+					$rvalue = array();
+					$count = 0;
+					foreach ($result as $row) {
+						$authorresult = $this->modules[$this->database_module]->queryDatabase("SELECT firstname FROM scms_accounts WHERE id = ".$row[4].";");
+						foreach ($authorresult as $item) {
+							$author = $item[0];	
+						}
+						$details = $this->modules[$this->textpost_module]->createPostPreview($row[2]);
+						$rvalue[$count] = array("id" => $row[0],
+							"title" => $row[1],
+							"details" => $details,
+							"dateposted" => $row[3],
+							"author" => $author,
+							"type" => $row[5]);
+						$count++;
+					}
+					
+				} else {
+					$rvalue = Engine::DATABASE_ERROR_NO_QUERY_RESULTS;
+				}
 			}
 			return $rvalue;
 		}

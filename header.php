@@ -5,6 +5,7 @@ $engine->setCookies();
 <html>
 <head>
 	<title><?php $engine->getPageTitle(); ?></title>
+	<link rel="stylesheet" type="text/css" href="http://code.jquery.com/ui/1.10.1/themes/base/jquery-ui.css">
 	<link rel="stylesheet" type="text/css" href="./css/main.css">
 	<?php
 		if (strpos($_SERVER['SCRIPT_NAME'], "manage.php") !== false) {

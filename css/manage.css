@@ -39,3 +39,65 @@ article#manage > h1
 {
     display: none;
 }
+
+.post 
+{
+    /*display: none;*/
+    margin-bottom: 20px;
+    position: relative;
+}
+
+.post > p 
+{
+    padding: 0px;
+}
+
+.post > .postid 
+{
+    display: none;
+}
+
+.post > h3 
+{
+    font-size: 12px;
+}
+
+.post > .edit 
+{
+    position: absolute;
+    top: 0px;
+    right: 24px;
+    width: 24px;
+    height: 24px;
+    background-image: url("../images/edit.png");
+    display: none;
+    cursor: pointer;
+}
+
+.post > .delete
+{
+    position: absolute;
+    top: 0px;
+    right: 0px;
+    width: 24px;
+    height: 24px;
+    background-image: url("../images/delete.png");
+    display: none;
+    cursor: pointer;
+}
+
+#dialog-confirm 
+{
+    display: none;
+    font-size: 12px;
+}
+
+span 
+{
+    font-size: 12px;
+}
+
+.ui-dialog .ui-dialog-buttonpane 
+{
+    padding: 0px;
+}

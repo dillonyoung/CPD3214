@@ -221,3 +221,8 @@ footer > p
 {
     display: none;
 }
+
+#end 
+{
+    clear: both;
+}
