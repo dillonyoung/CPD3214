@@ -24,6 +24,11 @@ nav#left ul li a
     text-decoration: none;
 }
 
+nav#top 
+{
+    padding-bottom: 20px;
+}
+
 article#manage
 {
     float: right;
@@ -38,11 +43,38 @@ article#manage > h1
 #newposttype, #newtextpostentry
 {
     display: none;
+    position: relative;
+    margin-bottom: 20px;
+}
+
+#newtextpostentry input[type="text"]
+{
+    width: 400px;
+    padding: 5px;
+    margin-bottom: 10px;
+}
+
+#newtextpostentry textarea 
+{
+    width: 400px;
+    height: 60px;
+    resize: none;
+    padding: 5px;
+    margin-bottom: 10px;
+}
+
+newtextpostentry span 
+{
+    clear: both;
+}
+
+newtextpostentry .space 
+{
+    width: 25%;
 }
 
 .post 
 {
-    /*display: none;*/
     margin-bottom: 20px;
     position: relative;
 }
@@ -52,23 +84,25 @@ article#manage > h1
     padding: 0px;
 }
 
-.post > .postid 
+.post > .postid, .post > .posttype
 {
     display: none;
 }
 
-.post > h3 
+.post > span
 {
     font-size: 12px;
+    float: left;
+    color: Gray;
 }
 
 .post > .edit 
 {
     position: absolute;
     top: 0px;
-    right: 24px;
-    width: 24px;
-    height: 24px;
+    right: 16px;
+    width: 16px;
+    height: 16px;
     background-image: url("../images/edit.png");
     display: none;
     cursor: pointer;
@@ -79,11 +113,16 @@ article#manage > h1
     position: absolute;
     top: 0px;
     right: 0px;
-    width: 24px;
-    height: 24px;
+    width: 16px;
+    height: 16px;
     background-image: url("../images/delete.png");
     display: none;
     cursor: pointer;
+}
+
+.post > .postdate 
+{
+    display: none;
 }
 
 #dialog-confirm 

@@ -31,7 +31,6 @@
 						$rvalue = $engine->submitNewPost($postdata);
 						
 						if ($rvalue == Engine::DATABASE_ERROR_NO_ERROR) {
-							
 							$status = 1;
 						} else {
 							$status = -2;

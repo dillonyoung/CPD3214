@@ -364,7 +364,7 @@
 						$rvalue[$count] = array("id" => $row[0],
 							"title" => $row[1],
 							"details" => $details,
-							"dateposted" => $row[3],
+							"dateposted" => strtotime($row[3]),
 							"author" => $author,
 							"type" => $row[5]);
 						$count++;
@@ -383,6 +383,23 @@
 				switch ($data['type']) {
 					case Engine::FEATURE_SUPPORT_TEXT_POST:
 						$rvalue = $this->modules[$this->textpost_module]->addPost($data);
+						break;
+					default:
+						$rvalue = Engine::POST_NO_TYPE_CONFIGURED;
+						break;
+				}
+			} else {
+				$rvalue = Engine::POST_NO_TYPE_CONFIGURED;	
+			}
+			return $rvalue;
+		}
+		
+		public function deleteExistingPost($data) {
+			$rvalue = Engine::NO_ERROR_STATUS;
+			if (isset($data['type'])) {
+				switch ($data['type']) {
+					case Engine::FEATURE_SUPPORT_TEXT_POST:
+						$rvalue = $this->modules[$this->textpost_module]->deletePost($data);
 						break;
 					default:
 						$rvalue = Engine::POST_NO_TYPE_CONFIGURED;

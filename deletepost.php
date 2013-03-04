@@ -11,7 +11,17 @@
 			$post = json_decode($json, true);
 			
 			if (isset($post['id'])) {
+				$postdata = array();
+				$postdata['type'] = $post['type'];
+				$postdata['id'] = $post['id'];
 				
+				$rvalue = $engine->deleteExistingPost($postdata);
+				
+				if ($rvalue == Engine::DATABASE_ERROR_NO_ERROR) {
+					$status = 1;
+				} else {
+					$status = -2;
+				}
 			} else {
 				$status = -1;	
 			}

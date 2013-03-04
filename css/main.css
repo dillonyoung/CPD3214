@@ -34,6 +34,7 @@ body
 #status_message 
 {
     position: fixed;
+    z-index: 9999;
     display: none;
     margin-left: -255px;
     width: 500px;

@@ -57,6 +57,22 @@
 			return $rvalue;
 		}
 		
+		public function deletePost($data) {
+			$rvalue = Engine::DATABASE_ERROR_COULD_NOT_ACCESS_DATABASE;
+			if (isset($data['type'])) {
+				if ($data['type'] == $this->MODULE_FEATURE) {
+					$result = $this->database_module->queryDatabase("DELETE FROM scms_posts WHERE id = ".$data['id'].";");
+					if (count($result) > 0) {
+						$rvalue = Engine::DATABASE_ERROR_NO_ERROR;
+					} else {
+						$rvalue = Engine::DATABASE_ERROR_NO_QUERY_RESULTS;
+					}
+					return $rvalue;
+				}	
+			}	
+			return $rvalue;
+		}
+		
 		public function createPostPreview($data) {
 			$rvalue = "";
 			$rvalue = htmlentities($data);

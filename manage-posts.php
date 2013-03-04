@@ -15,9 +15,13 @@
 <div id="newtextpostentry">
 <label for="txt_newtextpost_title">Title:</label>
 <input type="text" name="txt_newtextpost_title" id="txt_newtextpost_title" />
+<div class="space"></div>
 <label for="txt_newtextpost_body">Post:</label>
 <textarea name="txt_newtextpost_body" id="txt_newtextpost_body"></textarea>
+<div class="space"></div>
 <button id="btn_manage_submit_newtextpost">Submit Post</button>
+<button id="btn_manage_cancel_newtextpost">Cancel</button>
+<span></span>
 </div>
 <div id="postlist"></div>
 <div id="dialog-confirm" title="Empty the recycle bin?">
