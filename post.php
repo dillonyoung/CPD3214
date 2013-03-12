@@ -12,6 +12,8 @@
 		$title = $post['title'];
 		$body = $post['body'];
 		$type = $post['type'];
+		$mode = $post['mode'];
+		$id = $post['id'];
 		
 		if (empty($title) || empty($body) || empty($type)) {
 			$status = -1;
@@ -26,9 +28,14 @@
 						$postdata['details'] = $body;
 						$postdata['author'] = $rvalue;
 						$postdata['category'] = 1;
-						$rvalue = $engine->getUserID();
+						$postdata['id'] = $id;
+						//$rvalue = $engine->getUserID();
 						
-						$rvalue = $engine->submitNewPost($postdata);
+						if ($mode == 1) {
+							$rvalue = $engine->submitNewPost($postdata);
+						} else if ($mode == 2) {
+							$rvalue = $engine->editExistingPost($postdata);
+						}
 						
 						if ($rvalue == Engine::DATABASE_ERROR_NO_ERROR) {
 							$status = 1;

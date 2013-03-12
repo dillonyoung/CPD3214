@@ -1,6 +1,6 @@
 <?php
 	class MySQL {
-		private $MODULE_VERSION = "1.0.203";
+		private $MODULE_VERSION = "1.13.0306";
 		private $MODULE_NAME = "MySQL";
 		private $MODULE_AUTHOR = "Dillon Young";
 		private $MODULE_DESCRIPTION = "A wrapper module for using a MySQL database";
@@ -137,7 +137,7 @@
 		
 		private function openDatabaseConnection() {
 			$rvalue = Engine::DATABASE_ERROR_NO_ERROR;
-			$this->database_connection = mysql_connect($this->database_host, $this->database_username, $this->database_password);
+			$this->database_connection = @mysql_connect($this->database_host, $this->database_username, $this->database_password);
 			if (!$this->database_connection) { 
 				$rvalue = Engine::DATABASE_ERROR_INVALID_USERNAME_PASSWORD;
 				$this->database_connection = null;

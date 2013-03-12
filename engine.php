@@ -2,13 +2,13 @@
 	/**
 	 * Author.....: Dillon Young
 	 * Date.......: 02-19-2013
-	 * Version....: 1.13.0220
+	 * Version....: 1.13.0311
 	 * Description: The main PHP file for the SimpleCMS PHP term project
 	 */
 	class Engine {
 	
 		// Declare constants
-		const ENGINE_VERSION = "1.13.0219";
+		const ENGINE_VERSION = "1.13.0311";
 		const DATABASE_ERROR_NO_ERROR = 0;
 		const DATABASE_ERROR_INVALID_USERNAME_PASSWORD = 1;
 		const DATABASE_ERROR_COULD_NOT_CREATE_DATABASE = 2;
@@ -383,6 +383,23 @@
 				switch ($data['type']) {
 					case Engine::FEATURE_SUPPORT_TEXT_POST:
 						$rvalue = $this->modules[$this->textpost_module]->addPost($data);
+						break;
+					default:
+						$rvalue = Engine::POST_NO_TYPE_CONFIGURED;
+						break;
+				}
+			} else {
+				$rvalue = Engine::POST_NO_TYPE_CONFIGURED;	
+			}
+			return $rvalue;
+		}
+		
+		public function editExistingPost($data) {
+			$rvalue = Engine::NO_ERROR_STATUS;
+			if (isset($data['type'])) {
+				switch ($data['type']) {
+					case Engine::FEATURE_SUPPORT_TEXT_POST:
+						$rvalue = $this->modules[$this->textpost_module]->editPost($data);
 						break;
 					default:
 						$rvalue = Engine::POST_NO_TYPE_CONFIGURED;

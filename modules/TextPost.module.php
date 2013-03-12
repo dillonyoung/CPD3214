@@ -1,6 +1,6 @@
 <?php
 	class TextPost {
-		private $MODULE_VERSION = "1.0.301";
+		private $MODULE_VERSION = "1.13.0311";
 		private $MODULE_NAME = "TextPost";
 		private $MODULE_AUTHOR = "Dillon Young";
 		private $MODULE_DESCRIPTION = "A wrapper module for a text post";
@@ -46,6 +46,25 @@
 				if ($data['type'] == $this->MODULE_FEATURE) {
 					$result = $this->database_module->queryDatabase("INSERT INTO scms_posts (title, details, author, type, category) " .
 						"VALUES('".$data['title']."', '".$data['details']."', ".$data['author'].", ".$data['type'].", ".$data['category'].");");
+					if (count($result) > 0) {
+						$rvalue = Engine::DATABASE_ERROR_NO_ERROR;
+					} else {
+						$rvalue = Engine::DATABASE_ERROR_NO_QUERY_RESULTS;
+					}
+					return $rvalue;
+				}	
+			}	
+			return $rvalue;
+		}
+		
+		public function editPost($data) {
+			$rvalue = Engine::DATABASE_ERROR_COULD_NOT_ACCESS_DATABASE;
+			if (isset($data['type'])) {
+				if ($data['type'] == $this->MODULE_FEATURE) {
+					$result = $this->database_module->queryDatabase("UPDATE scms_posts SET title = '".$data['title']."', details = '".$data['details']."' " .
+						"WHERE id = ".$data['id'].";");
+					//$result = $this->database_module->queryDatabase("INSERT INTO scms_posts (title, details, author, type, category) " .
+					//	"VALUES('".$data['title']."', '".$data['details']."', ".$data['author'].", ".$data['type'].", ".$data['category'].");");
 					if (count($result) > 0) {
 						$rvalue = Engine::DATABASE_ERROR_NO_ERROR;
 					} else {

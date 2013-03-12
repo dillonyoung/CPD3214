@@ -134,9 +134,43 @@ newtextpostentry .space
 span 
 {
     font-size: 12px;
+    display: inline;
 }
 
 .ui-dialog .ui-dialog-buttonpane 
 {
     padding: 0px;
+}
+
+input#txt_title, textarea#txt_body, .buttons
+{
+    display: none;
+}
+
+input#txt_title
+{
+    width: 600px;
+    padding: 5px;
+    margin-bottom: 10px;
+}
+
+textarea#txt_body
+{
+    width: 600px;
+    height: 60px;
+    resize: none;
+    padding: 5px;
+    margin-bottom: 10px;
+}
+
+span.buttons 
+{
+    width: 600px;
+    margin-bottom: 10px;
+}
+
+.clear 
+{
+    clear: both;
+    display: block;
 }

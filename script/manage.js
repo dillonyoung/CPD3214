@@ -1,3 +1,5 @@
+var selectedPost = null;
+
 $(document).ready(function () {
 
     loadPostList();
@@ -36,6 +38,8 @@ $(document).ready(function () {
         postData.title = $('#txt_newtextpost_title').val();
         postData.body = $('#txt_newtextpost_body').val();
         postData.type = 'textpost';
+        postData.mode = 1;
+        postData.id = 0;
         var query = JSON.stringify(postData);
 
         $.ajax({
@@ -94,14 +98,16 @@ function loadPostList() {
                         if ($('#' + element).length == 0) {
                             var post = '';
                             if (posts[i].type == 4) {
-                                post += '<h2>' + posts[i].title + '</h2><p>' + posts[i].details + '</p><span>Written by ' + posts[i].author + '&nbsp;</span>&nbsp;<span class="formatteddate">0 seconds</span><span>&nbsp;ago</span>';
+                                post += '<h2>' + posts[i].title + '</h2><input type="text" id="txt_title" /><p>' + posts[i].details + '</p><textarea id="txt_body"></textarea>';
+                                post += '<span class="buttons"><button id="btn_update_post">Save Changes Post</button>&nbsp;&nbsp;&nbsp;<button id="btn_cancel">Cancel</button></span>';
+                                post += '<span class="footer">Written by ' + posts[i].author + '&nbsp;</span>&nbsp;<span class="formatteddate">0 seconds</span><span>&nbsp;ago</span>';
                             }
                             post += '<div class="postid">' + posts[i].id + '</div>';
                             post += '<div class="posttype">' + posts[i].type + '</div>';
                             post += '<div class="postdate">' + posts[i].dateposted + '</div>';
                             post += '<div class="edit" title="Edit Post"></div>';
                             post += '<div class="delete" title="Delete Post"></div>';
-
+                            post += '<div class="clear"></div>';
                             formatDate(posts[i].dateposted);
 
                             post = $(post);
@@ -125,8 +131,19 @@ function loadPostList() {
                             });
 
                             $(posthold).children('.delete').on('click', function () {
-                                //alert($(this).parent().children('.postid').html());
                                 deletePost($(this).parent());
+                            });
+
+                            $(posthold).children('.edit').on('click', function () {
+                                editPost($(this).parent());
+                            });
+
+                            $(posthold).children('.buttons').children('#btn_update_post').on('click', function () {
+                                updateEditPost($(this).parent().parent());
+                            });
+
+                            $(posthold).children('.buttons').children('#btn_cancel').on('click', function () {
+                                cancelEditPost($(this).parent().parent());
                             });
                         } else {
 
@@ -149,6 +166,82 @@ function updateDateTime() {
         $(this).children('.formatteddate').html(n);
 
     });
+}
+
+function updateEditPost(post) {
+
+    var postData = new Object();
+    postData.title = $(post).children('#txt_title').val();
+    postData.body = $(post).children('#txt_body').val();
+    postData.type = 'textpost';
+    postData.mode = 2
+    postData.id = $(post).children('.postid').html();
+    var query = JSON.stringify(postData);
+
+    $.ajax({
+        type: "POST",
+        url: "post.php",
+        dataType: "json",
+        data: { json: query },
+        success: function (data) {
+            var response = data;
+
+            if (response.status == 0) {
+                displayMessage("There was an error in the post", 2);
+            } else if (response.status == -1) {
+                displayMessage("One or more fields are blank", 2);
+            } else if (response.status == -2) {
+                displayMessage("There was an error updating your post, please try again", 2);
+            } else if (response.status == 1) {
+                $(post).children('h2').text($(post).children('#txt_title').val());
+                $(post).children('p').text($(post).children('#txt_body').val());
+                cancelEditPost(post);
+                displayMessage("Your changes have been successfully saved", 1);
+            }
+        }
+    });
+}
+
+function cancelEditPost(post) {
+
+    if (selectedPost != null) {
+
+        var selectedData = new Object();
+        selectedData.id = $(selectedPost).children('.postid').html();
+        selectedData.type = $(selectedPost).children('.posttype').html();
+
+        if (selectedData.type == 4) {
+            $(selectedPost).children('#txt_title').hide();
+            $(selectedPost).children('#txt_body').hide();
+            $(selectedPost).children('.buttons').hide();
+            $(selectedPost).children('h2').fadeIn(1000);
+            $(selectedPost).children('p').fadeIn(1000);
+        }
+
+        selectedPost = null;
+    }
+}
+
+function editPost(post) {
+
+    cancelEditPost(post);
+
+    selectedPost = post;
+
+    var postData = new Object();
+    postData.id = $(post).children('.postid').html();
+    postData.type = $(post).children('.posttype').html();
+
+    if (postData.type == 4) {
+        $(post).children('h2').hide();
+        $(post).children('p').hide();
+        $(post).children('#txt_title').val($(post).children('h2').text());
+        $(post).children('#txt_body').val($(post).children('p').text());
+        $(post).children('#txt_title').fadeIn(1000);
+        $(post).children('#txt_body').fadeIn(1000);
+        $(post).children('.buttons').fadeIn(1000);
+        $('button').button();
+    }
 }
 
 function deletePost(post) {
