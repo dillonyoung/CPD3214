@@ -18,6 +18,7 @@
 		const DATABASE_ERROR_QUERY_ERROR = 6;
 		const DATABASE_ERROR_NO_QUERY_RESULTS = 7;
 		const DATABASE_ERROR_NO_DATABASE = 8;
+		const DATABASE_ERROR_USER_EXISTS = 9;
 		const USER_ACCOUNT_TYPE_ADMIN = 2;
 		const USER_ACCOUNT_TYPE_NORMAL = 1;
 		const USER_STATUS_NOT_LOGGED_IN = 31;
@@ -27,17 +28,20 @@
 		const USER_STATUS_HAS_BEEN_LOGGED_OUT = 35;
 		const POST_NO_TYPE_CONFIGURED = 40;
 		const POST_NOT_EXISTS = 50;
+		const CAPTCHA_NO_MATCH = 70;
 		const NO_ERROR_STATUS = 0;
 		
 		const FEATURE_SUPPORT_DATABASE = 2;
 		const FEATURE_SUPPORT_TEXT_POST = 4;
 		const FEATURE_SUPPORT_IMAGE_POST = 8;
 		const FEATURE_SUPPORT_YOUTUBE_POST = 16;
+		const FEATURE_SUPPORT_CAPTCHA = 2048;
 	
 		// Declare variables
 		private $modules = array();
 		private $database_module;
 		private $textpost_module;
+		private $captcha_module;
 
 	
 		/**
@@ -63,6 +67,7 @@
 			// Check for modules which support required features
 			$this->database_module = -1;
 			$this->textpost_module = -1;
+			$this->captcha_module = -1;
 			
 			for ($i = 0; $i < count($this->modules); $i++) {
 				if ($this->modules[$i] != null) {
@@ -71,6 +76,9 @@
 					}
 					if ($this->modules[$i]->getFeatures() == Engine::FEATURE_SUPPORT_TEXT_POST) {
 						$this->textpost_module = $i;	
+					}
+					if ($this->modules[$i]->getFeatures() == Engine::FEATURE_SUPPORT_CAPTCHA) {
+						$this->captcha_module = $i;	
 					}
 				}
 			}
@@ -85,6 +93,12 @@
 				die("No text post module installed");	
 			} else {
 				$this->modules[$this->textpost_module]->setDatabaseModule($this->modules[$this->database_module]);
+			}
+			
+			if ($this->captcha_module == -1) {
+				die("No captcha module installed");	
+			} else {
+				$this->modules[$this->captcha_module]->setDatabaseModule($this->modules[$this->database_module]);
 			}
 		}
 	
@@ -319,10 +333,10 @@
 			return $rvalue;
 		}
 	
-		public function addUser($username, $password, $accesslevel) {			
+		public function addUser($username, $password, $accesslevel, $firstname = 'Administrator', $lastname = '') {			
 			$rvalue = Engine::DATABASE_ERROR_COULD_NOT_ACCESS_DATABASE;
 			if ($this->database_module != -1) {
-				$result = $this->modules[$this->database_module]->queryDatabase("INSERT INTO scms_accounts (username, password, firstname, accesslevel) VALUES('".$username."', '".crypt($password)."', 'Administrator', ".$accesslevel.");");
+				$result = $this->modules[$this->database_module]->queryDatabase("INSERT INTO scms_accounts (username, password, firstname, lastname, accesslevel) VALUES('".$username."', '".crypt($password)."', '$firstname', '$lastname', ".$accesslevel.");");
 				
 				if (count($result) > 0) {
 					$rvalue = Engine::DATABASE_ERROR_NO_ERROR;
@@ -345,6 +359,20 @@
 				}
 			}
 			return $rvalue;
+		}
+		
+		public function checkIfUserExists($data) {
+			$rvalue = Engine::DATABASE_ERROR_COULD_NOT_ACCESS_DATABASE;
+			if ($this->database_module != -1) {
+				$result = $this->modules[$this->database_module]->queryDatabase("SELECT * FROM scms_accounts WHERE username = '".$data."';");
+				
+				if (count($result) > 0) {
+					$rvalue = Engine::DATABASE_ERROR_USER_EXISTS;
+				} else {
+					$rvalue = Engine::DATABASE_ERROR_NO_QUERY_RESULTS;
+				}
+			}
+			return $rvalue;	
 		}
 		
 		public function listPosts($start, $size) {
@@ -487,6 +515,22 @@
 					break;
 			}
 			return $rvalue;
+		}
+		
+		public function createNewCaptcha() {
+			$rvalue = Engine::NO_ERROR_STATUS;
+
+			$rvalue = $this->modules[$this->captcha_module]->createCaptcha();
+
+			return $rvalue;
+		}
+		
+		public function checkEnteredCaptcha($data) {
+			$rvalue = Engine::NO_ERROR_STATUS;
+			
+			$rvalue = $this->modules[$this->captcha_module]->checkCaptcha($data);
+			
+			return $rvalue;	
 		}
 	
 		private function loadModules() {

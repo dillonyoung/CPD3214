@@ -36,8 +36,8 @@ body
     position: fixed;
     z-index: 9999;
     display: none;
-    margin-left: -255px;
-    width: 500px;
+    margin-left: -355px;
+    width: 700px;
     top: 10px;
     left: 50%;
     height: 20px;
@@ -107,6 +107,17 @@ header > #login_area
     float: right;
 }
 
+header > #login_area > a 
+{
+    float: left;
+    padding-left: 10px;
+}
+
+header > #login_area > input 
+{
+    width: 100px;
+}
+
 section 
 {
     min-height: 100%;
@@ -152,7 +163,7 @@ section input
     padding: 5px;
 }
 
-section input[type="submit"] 
+oldsection input[type="submit"] 
 {
     border: 1px solid #777777;
     background: #6e9e2d;

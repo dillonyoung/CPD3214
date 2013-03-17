@@ -17,19 +17,22 @@ $(document).ready(function () {
 
 function showLoginDialog(result) {
     var loginform;
-    loginform = '<a href=\"#\" id=\"login\">Login</a><div id=\"login_form\">' +
+    loginform = '<a href=\"#\" id=\"login\">Login</a>&nbsp;&nbsp;&nbsp;<a href=\"./register.php\" id=\"register\">Register</a><div id=\"login_form\">' +
                 '<p>Username: <input type=\"text\" name=\"txt_login_username\" id=\"txt_login_username\" /></p>' +
                 '<p>Password: <input type=\"password\" name=\"txt_login_password\" id=\"txt_login_password\" /></p>' +
                 '<p><button id=\"btn_login_login\">Login</button>&nbsp;<button id=\"btn_login_cancel\">Cancel</button></div>';
     $('#login_area').html(loginform);
+    $('button').button();
 
     $('a#login').click(function () {
         $('a#login').css("display", "none");
+        $('a#register').css("display", "none");
         $('#login_form').css("display", "block");
     });
 
     $('button#btn_login_cancel').click(function () {
         $('a#login').css("display", "block");
+        $('a#register').css("display", "block");
         $('#login_form').css("display", "none");
     });
 
