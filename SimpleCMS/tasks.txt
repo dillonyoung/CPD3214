@@ -1,0 +1,16 @@
+- add remaining database tables
+- add code for the login process
+- add code for the main page view
+- add code for the management console
+- add more commenting to the code
+- add jquery powered login and logout functions to the header
+- add message box to page to inform user of any messages
+
+- add code to submit a post to the database
+- add code to the engine to call the correct module for the post
+
+- fix up the delete code for the post so it works
+
+- add @ symbol to mysql select database code
+
+- fix the add new post to update the display with the new post

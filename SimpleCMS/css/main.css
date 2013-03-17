@@ -227,3 +227,32 @@ footer > p
 {
     clear: both;
 }
+
+.post > .postid, .post > .posttype, .post > .postdate
+{
+    display: none;
+}
+
+span 
+{
+    font-size: 12px;
+    display: inline;
+}
+
+.post 
+{
+    margin-bottom: 20px;
+    position: relative;
+}
+
+.post > p 
+{
+    padding: 0px;
+}
+
+.post > span
+{
+    font-size: 12px;
+    float: left;
+    color: Gray;
+}

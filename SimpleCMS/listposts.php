@@ -19,11 +19,11 @@
 		} else {
 			$status = 1;
 		}
-			
+		
 	}
 	
 	$json_data = array('status' => $status,
-				'posts' => $rvalue
+		'posts' => $rvalue
 		);
 	$json_encoded = json_encode($json_data, JSON_NUMERIC_CHECK);
 	

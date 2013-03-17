@@ -19,6 +19,8 @@ $engine->setCookies();
 	<?php
 		if (strpos($_SERVER['SCRIPT_NAME'], "manage.php") !== false) {
 			echo "<script type=\"text/javascript\" src=\"./script/manage.js\"></script>\n";	
+		} else {
+			echo "<script type=\"text/javascript\" src=\"./script/main.js\"></script>\n";	
 		}
 	?>
 </head>

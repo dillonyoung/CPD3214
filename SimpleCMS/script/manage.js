@@ -98,7 +98,7 @@ function loadPostList() {
                         if ($('#' + element).length == 0) {
                             var post = '';
                             if (posts[i].type == 4) {
-                                post += '<h2>' + posts[i].title + '</h2><input type="text" id="txt_title" /><p>' + posts[i].details + '</p><textarea id="txt_body"></textarea>';
+                                post += '<h2>' + posts[i].title + '</h2><input type="text" id="txt_title" /><p>' + posts[i].details.replace(/[\r\n]/g, "<br />") +'</p><textarea id="txt_body"></textarea>';
                                 post += '<span class="buttons"><button id="btn_update_post">Save Changes Post</button>&nbsp;&nbsp;&nbsp;<button id="btn_cancel">Cancel</button></span>';
                                 post += '<span class="footer">Written by ' + posts[i].author + '&nbsp;</span>&nbsp;<span class="formatteddate">0 seconds</span><span>&nbsp;ago</span>';
                             }
@@ -193,8 +193,8 @@ function updateEditPost(post) {
             } else if (response.status == -2) {
                 displayMessage("There was an error updating your post, please try again", 2);
             } else if (response.status == 1) {
-                $(post).children('h2').text($(post).children('#txt_title').val());
-                $(post).children('p').text($(post).children('#txt_body').val());
+                $(post).children('h2').html($(post).children('#txt_title').val());
+                $(post).children('p').html($(post).children('#txt_body').val().replace(/[\r\n]/g, "<br />"));
                 cancelEditPost(post);
                 displayMessage("Your changes have been successfully saved", 1);
             }
@@ -235,8 +235,8 @@ function editPost(post) {
     if (postData.type == 4) {
         $(post).children('h2').hide();
         $(post).children('p').hide();
-        $(post).children('#txt_title').val($(post).children('h2').text());
-        $(post).children('#txt_body').val($(post).children('p').text());
+        $(post).children('#txt_title').val($(post).children('h2').html());
+        $(post).children('#txt_body').val($(post).children('p').html().replace(/<br>/g, "\r\n"));
         $(post).children('#txt_title').fadeIn(1000);
         $(post).children('#txt_body').fadeIn(1000);
         $(post).children('.buttons').fadeIn(1000);

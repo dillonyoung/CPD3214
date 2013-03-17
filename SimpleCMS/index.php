@@ -6,7 +6,9 @@
 
 	if ($engine->isConfigured()) {
 		include('header.php');
-		//$engine->loadPageContents();
+		
+		include('main-posts.php');
+		
 		include('footer.php');
 	} else {
 		header('location: ./configure.php');

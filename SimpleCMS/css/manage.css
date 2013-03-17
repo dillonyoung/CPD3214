@@ -73,29 +73,6 @@ newtextpostentry .space
     width: 25%;
 }
 
-.post 
-{
-    margin-bottom: 20px;
-    position: relative;
-}
-
-.post > p 
-{
-    padding: 0px;
-}
-
-.post > .postid, .post > .posttype
-{
-    display: none;
-}
-
-.post > span
-{
-    font-size: 12px;
-    float: left;
-    color: Gray;
-}
-
 .post > .edit 
 {
     position: absolute;
@@ -118,11 +95,6 @@ newtextpostentry .space
     background-image: url("../images/delete.png");
     display: none;
     cursor: pointer;
-}
-
-.post > .postdate 
-{
-    display: none;
 }
 
 #dialog-confirm 
