@@ -46,6 +46,7 @@
 				if ($data['type'] == $this->MODULE_FEATURE) {
 					$result = $this->database_module->queryDatabase("INSERT INTO scms_posts (title, details, author, type, category) " .
 						"VALUES('".$data['title']."', '".$data['details']."', ".$data['author'].", ".$data['type'].", ".$data['category'].");");
+
 					if (count($result) > 0) {
 						$rvalue = Engine::DATABASE_ERROR_NO_ERROR;
 					} else {

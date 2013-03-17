@@ -90,7 +90,7 @@ function loadPostList() {
                 var response = data;
 
                 if (response.status == 0 || response.status == -1) {
-                    displayMessage("One or more fields are blank", 2);
+                    //displayMessage("One or more fields are blank", 2);
                 } else {
                     var posts = response.posts;
                     for (var i = 0; i < posts.length; i++) {
@@ -178,7 +178,7 @@ function loadUserList() {
                 var response = data;
 
                 if (response.status == 0 || response.status == -1) {
-                    displayMessage("One or more fields are blank", 2);
+                    //displayMessage("One or more fields are blank", 2);
                 } else {
                     var users = response.users;
                     for (var i = 0; i < users.length; i++) {
@@ -218,8 +218,8 @@ function loadUserList() {
                                 $(this).children('.lock').fadeOut(500);
                             });
 
-                            $(userhold).children('.delete').on('click', function () {
-                                deletePost($(this).parent());
+                            $(userhold).children('.lock').on('click', function () {
+                                lockUser($(this).parent());
                             });
 
                             $(userhold).children('.edit').on('click', function () {
@@ -337,6 +337,46 @@ function editPost(post) {
 function deletePost(post) {
     $('#dialog-confirm').attr('title', 'Delete Post');
     $('#dialog-confirm').html("Are you sure you want to delete the selected post? This action can not be undone.");
+    $("#dialog-confirm").dialog({
+        resizable: false,
+        width: 400,
+        height: 140,
+        modal: true,
+        buttons: {
+            "Yes": function () {
+                var postData = new Object();
+                postData.id = $(post).children('.postid').html();
+                postData.type = $(post).children('.posttype').html();
+                var query = JSON.stringify(postData);
+
+                $.ajax({
+                    type: "POST",
+                    url: "deletepost.php",
+                    dataType: "json",
+                    data: { json: query },
+                    success: function (data) {
+                        var response = data;
+
+                        if (response.status == 0 || response.status == -1) {
+                            displayMessage("There was an error deleting the select post, please try again", 2);
+                        } else {
+                            displayMessage("The selected post has been successfully deleted", 1);
+                            $(post).fadeOut(1000);
+                        }
+                    }
+                });
+                $(this).dialog("close");
+            },
+            "No": function () {
+                $(this).dialog("close");
+            }
+        }
+    });
+}
+
+function lockUser(user) {
+    $('#dialog-confirm').attr('title', 'Lock User');
+    $('#dialog-confirm').html("Are you sure you want to lock the selected user?");
     $("#dialog-confirm").dialog({
         resizable: false,
         width: 400,

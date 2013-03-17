@@ -21,6 +21,8 @@
 		const DATABASE_ERROR_USER_EXISTS = 9;
 		const USER_ACCOUNT_TYPE_ADMIN = 2;
 		const USER_ACCOUNT_TYPE_NORMAL = 1;
+		const USER_ACCOUNT_STATUS_UNLOCKED = 1;
+		const USER_ACCOUNT_STATUS_LOCKED = 2;
 		const USER_STATUS_NOT_LOGGED_IN = 31;
 		const USER_STATUS_LOGGED_IN = 32;
 		const USER_STATUS_VALID_LOGIN = 33;
@@ -145,7 +147,7 @@
 				$this->modules[$this->database_module]->queryDatabase("DROP TABLE scms_accounts;");
 			}
 			
-			$this->modules[$this->database_module]->queryDatabase("CREATE TABLE scms_accounts (id BIGINT NOT NULL AUTO_INCREMENT, PRIMARY KEY(id), username VARCHAR(50) NOT NULL, UNIQUE (username), password VARCHAR(50) NOT NULL, email VARCHAR(100), firstname VARCHAR(50) NOT NULL, lastname VARCHAR(50), accesslevel INT NOT NULL, dateregistered DATETIME NOT NULL DEFAULT NOW());");
+			$this->modules[$this->database_module]->queryDatabase("CREATE TABLE scms_accounts (id BIGINT NOT NULL AUTO_INCREMENT, PRIMARY KEY(id), username VARCHAR(50) NOT NULL, UNIQUE (username), password VARCHAR(50) NOT NULL, email VARCHAR(100), firstname VARCHAR(50) NOT NULL, lastname VARCHAR(50), accesslevel INT NOT NULL, dateregistered DATETIME NOT NULL DEFAULT NOW(), accountstatus INT NOT NULL);");
 			$this->modules[$this->database_module]->queryDatabase("CREATE TABLE scms_categories (id BIGINT NOT NULL AUTO_INCREMENT, PRIMARY KEY(id), name VARCHAR(200) NOT NULL, UNIQUE (name));");
 			$this->modules[$this->database_module]->queryDatabase("CREATE TABLE scms_posts (id BIGINT NOT NULL AUTO_INCREMENT, PRIMARY KEY(id), title VARCHAR(200) NOT NULL, details TEXT NOT NULL, dateposted DATETIME NOT NULL DEFAULT NOW(), author BIGINT NOT NULL, FOREIGN KEY (author) REFERENCES scms_accounts(id), type INT NOT NULL, category BIGINT NOT NULL, FOREIGN KEY (category) REFERENCES scms_categories(id));");
 			$this->modules[$this->database_module]->queryDatabase("CREATE TABLE scms_comments (id BIGINT NOT NULL AUTO_INCREMENT, PRIMARY KEY(id), post BIGINT NOT NULL, FOREIGN KEY (post) REFERENCES scms_posts(id), dateposted DATETIME NOT NULL DEFAULT NOW(), author BIGINT NOT NULL, FOREIGN KEY (author) REFERENCES scms_accounts(id));");
@@ -336,7 +338,7 @@
 		public function addUser($username, $password, $accesslevel, $firstname = 'Administrator', $lastname = '') {			
 			$rvalue = Engine::DATABASE_ERROR_COULD_NOT_ACCESS_DATABASE;
 			if ($this->database_module != -1) {
-				$result = $this->modules[$this->database_module]->queryDatabase("INSERT INTO scms_accounts (username, password, firstname, lastname, accesslevel) VALUES('".$username."', '".crypt($password)."', '$firstname', '$lastname', ".$accesslevel.");");
+				$result = $this->modules[$this->database_module]->queryDatabase("INSERT INTO scms_accounts (username, password, firstname, lastname, accesslevel, accountstatus) VALUES('".$username."', '".crypt($password)."', '$firstname', '$lastname', ".$accesslevel.", ".Engine::USER_ACCOUNT_STATUS_UNLOCKED.");");
 				
 				if (count($result) > 0) {
 					$rvalue = Engine::DATABASE_ERROR_NO_ERROR;
@@ -368,6 +370,24 @@
 				
 				if (count($result) > 0) {
 					$rvalue = Engine::DATABASE_ERROR_USER_EXISTS;
+				} else {
+					$rvalue = Engine::DATABASE_ERROR_NO_QUERY_RESULTS;
+				}
+			}
+			return $rvalue;	
+		}
+		
+		public function addCategory($data) {
+			$rvalue = $this->insertCategory($data);	
+		}
+		
+		private function insertCategory($data) {
+			$rvalue = Engine::DATABASE_ERROR_COULD_NOT_ACCESS_DATABASE;
+			if ($this->database_module != -1) {
+				$result = $this->modules[$this->database_module]->queryDatabase("INSERT INTO scms_categories (name) VALUES('$data');");
+				
+				if (count($result) > 0) {
+					$rvalue = Engine::DATABASE_ERROR_NO_ERROR;
 				} else {
 					$rvalue = Engine::DATABASE_ERROR_NO_QUERY_RESULTS;
 				}

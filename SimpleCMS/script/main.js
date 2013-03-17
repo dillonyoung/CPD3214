@@ -24,7 +24,7 @@ function loadMainPostList() {
                 var response = data;
 
                 if (response.status == 0 || response.status == -1) {
-                    displayMessage("One or more fields are blank", 2);
+                    //displayMessage("One or more fields are blank", 2);
                 } else {
                     var posts = response.posts;
                     for (var i = 0; i < posts.length; i++) {

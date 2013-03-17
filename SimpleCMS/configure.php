@@ -45,6 +45,18 @@
 					displayAdminForm($user_username, $user_password1, $user_password2, $error_username, $error_password1, $error_password2);
 				} else {
 					$engine->addUser($user_username, $user_password1, Engine::USER_ACCOUNT_TYPE_ADMIN);
+					$engine->addCategory('Uncategorized');
+					
+					$postdata = array();
+					$postdata['type'] = Engine::FEATURE_SUPPORT_TEXT_POST;
+					$postdata['title'] = 'Hello World';
+					$postdata['details'] = 'You have successfully configured Simple CMS.';
+					$postdata['author'] = 1;
+					$postdata['category'] = 1;
+					$postdata['id'] = 0;
+					
+					$engine->submitNewPost($postdata);
+					
 					displayFinished();
 				}
 			} else {
