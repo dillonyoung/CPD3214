@@ -52,6 +52,8 @@ function showLoginDialog(result) {
 
                 if (response.status == 0 || response.status == -1) {
                     displayMessage("Your login attempt was unsuccessful", 2);
+                } else if (response.status == -5) {
+                    displayMessage("Your account is currently locked, please contact support", 2);
                 } else if (response.status == 1) {
                     displayMessage("You have successfully logged in", 1);
                     showLogoutDialog(response);
@@ -65,7 +67,7 @@ function showLoginDialog(result) {
 function showLogoutDialog(result) {
     var loginform;
     loginform = result.username + '&nbsp;&nbsp;';
-    if (result.level == 2) {
+    if (result.level == 3) {
         loginform += '<a href=\"manage.php\">Manage</a>&nbsp;&nbsp;';
     }
     loginform += '<a href=\"#\" id=\"logout\">Logout</a>';

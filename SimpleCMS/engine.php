@@ -19,7 +19,8 @@
 		const DATABASE_ERROR_NO_QUERY_RESULTS = 7;
 		const DATABASE_ERROR_NO_DATABASE = 8;
 		const DATABASE_ERROR_USER_EXISTS = 9;
-		const USER_ACCOUNT_TYPE_ADMIN = 2;
+		const USER_ACCOUNT_TYPE_ADMIN = 3;
+		const USER_ACCOUNT_TYPE_MODERATOR = 2;
 		const USER_ACCOUNT_TYPE_NORMAL = 1;
 		const USER_ACCOUNT_STATUS_UNLOCKED = 1;
 		const USER_ACCOUNT_STATUS_LOCKED = 2;
@@ -28,6 +29,8 @@
 		const USER_STATUS_VALID_LOGIN = 33;
 		const USER_STATUS_INVALID_LOGIN = 34;
 		const USER_STATUS_HAS_BEEN_LOGGED_OUT = 35;
+		const USER_STATUS_NOT_AUTORIZED = 36;
+		const USER_STATUS_ACCOUNT_LOCKED = 37;
 		const POST_NO_TYPE_CONFIGURED = 40;
 		const POST_NOT_EXISTS = 50;
 		const CAPTCHA_NO_MATCH = 70;
@@ -250,6 +253,28 @@
 			return $rvalue;
 		}
 		
+		public function getUserAccountStatus() {
+			$username = "";
+			if (isset($_SESSION['username'])) {
+				$username = $_SESSION['username'];
+			}
+			
+			$rvalue = Engine::DATABASE_ERROR_COULD_NOT_ACCESS_DATABASE;
+			if ($this->database_module != -1) {
+				$result = $this->modules[$this->database_module]->queryDatabase("SELECT accountstatus FROM scms_accounts WHERE username = '".$username."';");
+			}
+			
+			if (count($result) > 0) {
+				foreach ($result as $resultrow) {
+					$accesslevel = $resultrow[0];	
+				}
+				$rvalue = $accesslevel;
+			} else {
+				$rvalue = Engine::DATABASE_ERROR_NO_QUERY_RESULTS;
+			}
+			return $rvalue;
+		}
+		
 		public function getUserID() {
 			$username = "";
 			if (isset($_SESSION['username'])) {
@@ -275,19 +300,24 @@
 		public function attemptLogin($username, $password) {
 			$rvalue = Engine::DATABASE_ERROR_COULD_NOT_ACCESS_DATABASE;
 			if ($this->database_module != -1) {
-				$result = $this->modules[$this->database_module]->queryDatabase("SELECT password, accesslevel FROM scms_accounts WHERE username = '".$username."';");
+				$result = $this->modules[$this->database_module]->queryDatabase("SELECT password, accesslevel, accountstatus FROM scms_accounts WHERE username = '".$username."';");
 			}
 			
 			if (count($result) > 0) {
 				foreach ($result as $resultrow) {
 					$cpassword = $resultrow[0];	
 					$accesslevel = $resultrow[1];
+					$accountstatus = $resultrow[2];
 				}
-				if (crypt($password, $cpassword) == $cpassword) {
-					$rvalue = Engine::USER_STATUS_VALID_LOGIN;
-					$this->loginUser($username, $password, $accesslevel);
+				if ($accountstatus == Engine::USER_ACCOUNT_STATUS_UNLOCKED) {
+					if (crypt($password, $cpassword) == $cpassword) {
+						$rvalue = Engine::USER_STATUS_VALID_LOGIN;
+						$this->loginUser($username, $password, $accesslevel);
+					} else {
+						$rvalue = Engine::USER_STATUS_INVALID_LOGIN;
+					}
 				} else {
-					$rvalue = Engine::USER_STATUS_INVALID_LOGIN;
+					$rvalue = Engine::USER_STATUS_ACCOUNT_LOCKED;
 				}
 			} else {
 				$rvalue = Engine::DATABASE_ERROR_NO_QUERY_RESULTS;
@@ -317,6 +347,32 @@
 			} else {
 				$rvalue = Engine::USER_STATUS_NOT_LOGGED_IN;
 			}
+			return $rvalue;
+		}
+		
+		public function attemptLockUser($userid) {
+			$rvalue = Engine::NO_ERROR_STATUS;
+			if ($this->isUserAdmin()) {
+				$rvalue = $this->changeAccountStatus($userid, Engine::USER_ACCOUNT_STATUS_LOCKED);
+			} else {
+				$rvalue = Engine::USER_STATUS_NOT_AUTHORIZED;
+			}
+			return $rvalue;
+		}
+		
+		public function attemptUnlockUser($userid) {
+			$rvalue = Engine::NO_ERROR_STATUS;
+			if ($this->isUserAdmin()) {
+				$rvalue = $this->changeAccountStatus($userid, Engine::USER_ACCOUNT_STATUS_UNLOCKED);
+			} else {
+				$rvalue = Engine::USER_STATUS_NOT_AUTHORIZED;
+			}
+			return $rvalue;
+		}
+		
+		private function changeAccountStatus($userid, $status) {
+			$rvalue = Engine::NO_ERROR_STATUS;
+			$rvalue = $this->modules[$this->database_module]->queryDatabase("UPDATE scms_accounts SET accountstatus = ".$status." WHERE id = ".$userid.";");
 			return $rvalue;
 		}
 		
@@ -451,7 +507,8 @@
 							"firstname" => $row[4],
 							"lastname" => $row[5],
 							"accesslevel" => $row[6],
-							"dateregistered" => strtotime($row[7]));
+							"dateregistered" => strtotime($row[7]),
+							"accountstatus" => $row[8]);
 						$count++;
 					}
 					

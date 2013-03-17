@@ -239,7 +239,7 @@ footer > p
     clear: both;
 }
 
-.post > .postid, .post > .posttype, .post > .postdate, #postdetail > .postid, #postdetail > .postdate, .user > .userid, .user > .dateregistered
+.post > .postid, .post > .posttype, .post > .postdate, #postdetail > .postid, #postdetail > .postdate, .user > .userid, .user > .dateregistered, .user > .accountstatus
 {
     display: none;
 }

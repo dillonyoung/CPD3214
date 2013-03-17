@@ -36,6 +36,8 @@
 						$level = $rvalue;
 					}
 				}
+			} elseif ($rvalue == Engine::USER_STATUS_ACCOUNT_LOCKED) {
+				$status = -5;
 			} else {
 				$status = -1;
 			}

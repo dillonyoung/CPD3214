@@ -195,6 +195,7 @@ function loadUserList() {
 
                             user += '<div class="userid">' + users[i].id + '</div>';
                             user += '<div class="dateregistered">' + users[i].dateregistered + '</div>';
+                            user += '<div class="accountstatus">' + users[i].accountstatus + '</div>';
                             user += '<div class="unlock" title="Unlock User"></div>';
                             user += '<div class="lock" title="Lock User"></div>';
                             user += '<div class="clear"></div>';
@@ -208,22 +209,32 @@ function loadUserList() {
                                 $(this).animate({
                                     backgroundColor: '#dddddd'
                                 }, 1000);
-                                $(this).children('.lock').fadeIn(1000);
+                                var status = $(this).children('.accountstatus').text();
+                                if (status == 1) {
+                                    $(this).children('.lock').fadeIn(1000);
+                                } else if (status == 2) {
+                                    $(this).children('.unlock').fadeIn(1000);
+                                }
                             });
 
                             $(userhold).on('mouseleave', function () {
                                 $(this).animate({
                                     backgroundColor: '#ffffff'
                                 }, 1000);
-                                $(this).children('.lock').fadeOut(500);
+                                var status = $(this).children('.accountstatus').text();
+                                if (status == 1) {
+                                    $(this).children('.lock').fadeOut(500);
+                                } else if (status == 2) {
+                                    $(this).children('.unlock').fadeOut(500);
+                                }
                             });
 
                             $(userhold).children('.lock').on('click', function () {
                                 lockUser($(this).parent());
                             });
 
-                            $(userhold).children('.edit').on('click', function () {
-                                editPost($(this).parent());
+                            $(userhold).children('.unlock').on('click', function () {
+                                unlockUser($(this).parent());
                             });
                         } else {
 
@@ -375,8 +386,8 @@ function deletePost(post) {
 }
 
 function lockUser(user) {
-    $('#dialog-confirm').attr('title', 'Lock User');
-    $('#dialog-confirm').html("Are you sure you want to lock the selected user?");
+    $('#dialog-confirm').attr('title', 'Lock User Account');
+    $('#dialog-confirm').html("Are you sure you want to lock the selected user account?");
     $("#dialog-confirm").dialog({
         resizable: false,
         width: 400,
@@ -384,24 +395,62 @@ function lockUser(user) {
         modal: true,
         buttons: {
             "Yes": function () {
-                var postData = new Object();
-                postData.id = $(post).children('.postid').html();
-                postData.type = $(post).children('.posttype').html();
-                var query = JSON.stringify(postData);
+                var userData = new Object();
+                userData.userid = $(user).children('.userid').html();
+                var query = JSON.stringify(userData);
 
                 $.ajax({
                     type: "POST",
-                    url: "deletepost.php",
+                    url: "lockuser.php",
                     dataType: "json",
                     data: { json: query },
                     success: function (data) {
                         var response = data;
 
                         if (response.status == 0 || response.status == -1) {
-                            displayMessage("There was an error deleting the select post, please try again", 2);
+                            displayMessage("There was an error locking the selected user account, please try again", 2);
                         } else {
-                            displayMessage("The selected post has been successfully deleted", 1);
-                            $(post).fadeOut(1000);
+                            displayMessage("The selected user account has been successfully locked", 1);
+                            $(user).children('.accountstatus').html(2);
+                        }
+                    }
+                });
+                $(this).dialog("close");
+            },
+            "No": function () {
+                $(this).dialog("close");
+            }
+        }
+    });
+}
+
+function unlockUser(user) {
+    $('#dialog-confirm').attr('title', 'Unlock User Account');
+    $('#dialog-confirm').html("Are you sure you want to unlock the selected user account?");
+    $("#dialog-confirm").dialog({
+        resizable: false,
+        width: 400,
+        height: 140,
+        modal: true,
+        buttons: {
+            "Yes": function () {
+                var userData = new Object();
+                userData.userid = $(user).children('.userid').html();
+                var query = JSON.stringify(userData);
+
+                $.ajax({
+                    type: "POST",
+                    url: "unlockuser.php",
+                    dataType: "json",
+                    data: { json: query },
+                    success: function (data) {
+                        var response = data;
+
+                        if (response.status == 0 || response.status == -1) {
+                            displayMessage("There was an error unlocking the selected user account, please try again", 2);
+                        } else {
+                            displayMessage("The selected user account has been successfully unlocked", 1);
+                            $(user).children('.accountstatus').html(1);
                         }
                     }
                 });
