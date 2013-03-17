@@ -16,6 +16,9 @@
 		case 'posts':
 			$pagefile = "manage-posts.php";
 			break;
+		case 'users':
+			$pagefile = "manage-users.php";
+			break;	
 		case 'about':
 			$pagefile = "manage-about.php";
 			break;
@@ -30,7 +33,7 @@
 			<ul>
 			<li><a href="./manage.php">Home</a></li>
 			<li><a href="./manage.php?sec=posts">Posts</a></li>
-			<li>Users</li>
+			<li><a href="./manage.php?sec=users">Users</a></li>
 			<li><a href="./manage.php?sec=about">About</a></li>
 			</ul>
 			</nav>

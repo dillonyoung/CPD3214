@@ -4,6 +4,8 @@ $(document).ready(function () {
 
     loadPostList();
 
+    loadUserList();
+
     $('button').button();
 
     $('button#btn_manage_newpost').click(function () {
@@ -108,7 +110,7 @@ function loadPostList() {
                             post += '<div class="edit" title="Edit Post"></div>';
                             post += '<div class="delete" title="Delete Post"></div>';
                             post += '<div class="clear"></div>';
-                            formatDate(posts[i].dateposted);
+                            //formatDate(posts[i].dateposted);
 
                             post = $(post);
                             $(posthold).hide().prependTo('#postlist').fadeIn(2000);
@@ -158,14 +160,102 @@ function loadPostList() {
     }
 }
 
-function updateDateTime() {
-    var posts = $('#postlist');
-    posts.children().each(function () {
-        var d = $(this).children('.postdate').html();
-        var n = formatDate(d);
-        $(this).children('.formatteddate').html(n);
+function loadUserList() {
 
-    });
+    if ($('#userlist').length > 0) {
+
+        var listData = new Object();
+        listData.start = 0;
+        listData.size = 30;
+        var query = JSON.stringify(listData);
+
+        $.ajax({
+            type: "POST",
+            url: "listusers.php",
+            dataType: "json",
+            data: { json: query },
+            success: function (data) {
+                var response = data;
+
+                if (response.status == 0 || response.status == -1) {
+                    displayMessage("One or more fields are blank", 2);
+                } else {
+                    var users = response.users;
+                    for (var i = 0; i < users.length; i++) {
+                        var element = 'user' + i;
+                        var userhold = $('<div id="' + element + '" class="user"><div>');
+
+                        if ($('#' + element).length == 0) {
+                            var user = '';
+
+                            user += '<h2>' + users[i].username + '</h2>';
+                            user += '<p>First Name: ' + users[i].firstname + '</p>';
+                            user += '<p>Last Name: ' + users[i].lastname + '</p>';
+                            user += '<span class="footer">Registered&nbsp;</span>&nbsp;<span class="formatteddate">0 seconds</span><span>&nbsp;ago</span>';
+
+                            user += '<div class="userid">' + users[i].id + '</div>';
+                            user += '<div class="dateregistered">' + users[i].dateregistered + '</div>';
+                            user += '<div class="unlock" title="Unlock User"></div>';
+                            user += '<div class="lock" title="Lock User"></div>';
+                            user += '<div class="clear"></div>';
+                            //formatDate(users[i].dateregistered);
+
+                            user = $(user);
+                            $(userhold).hide().prependTo('#userlist').fadeIn(2000);
+                            $(userhold).append(user);
+                            $('#' + element).on('mouseenter', function () {
+                                $(this).clearQueue();
+                                $(this).animate({
+                                    backgroundColor: '#dddddd'
+                                }, 1000);
+                                $(this).children('.lock').fadeIn(1000);
+                            });
+
+                            $(userhold).on('mouseleave', function () {
+                                $(this).animate({
+                                    backgroundColor: '#ffffff'
+                                }, 1000);
+                                $(this).children('.lock').fadeOut(500);
+                            });
+
+                            $(userhold).children('.delete').on('click', function () {
+                                deletePost($(this).parent());
+                            });
+
+                            $(userhold).children('.edit').on('click', function () {
+                                editPost($(this).parent());
+                            });
+                        } else {
+
+                        }
+                    }
+                    updateDateTime();
+                    var timeout = setInterval(function () { updateDateTime() }, 1000);
+                }
+            }
+        });
+
+    }
+}
+
+function updateDateTime() {
+    if ($('#postlist').length > 0) {
+        var posts = $('#postlist');
+        posts.children().each(function () {
+            var d = $(this).children('.postdate').html();
+            var n = formatDate(d);
+            $(this).children('.formatteddate').html(n);
+        });
+    }
+
+    if ($('#userlist').length > 0) {
+        var posts = $('#userlist');
+        posts.children().each(function () {
+            var d = $(this).children('.dateregistered').html();
+            var n = formatDate(d);
+            $(this).children('.formatteddate').html(n);
+        });
+    }
 }
 
 function updateEditPost(post) {

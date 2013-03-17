@@ -239,7 +239,7 @@ footer > p
     clear: both;
 }
 
-.post > .postid, .post > .posttype, .post > .postdate, #postdetail > .postid, #postdetail > .postdate
+.post > .postid, .post > .posttype, .post > .postdate, #postdetail > .postid, #postdetail > .postdate, .user > .userid, .user > .dateregistered
 {
     display: none;
 }
@@ -250,7 +250,7 @@ span
     display: inline;
 }
 
-.post, #postdetail
+.post, #postdetail, .user
 {
     margin-bottom: 20px;
     position: relative;
@@ -261,7 +261,7 @@ span
     padding: 0px;
 }
 
-.post > span, #postdetail > span
+.post > span, #postdetail > span, .user > span
 {
     font-size: 12px;
     float: left;

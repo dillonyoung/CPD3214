@@ -416,6 +416,32 @@
 			return $rvalue;
 		}
 		
+		public function listUsers($start, $size) {
+			$rvalue = Engine::DATABASE_ERROR_COULD_NOT_ACCESS_DATABASE;
+			if ($this->database_module != -1) {
+				$result = $this->modules[$this->database_module]->queryDatabase("SELECT * FROM scms_accounts LIMIT ".$start.", ".$size.";");
+				
+				if (count($result) > 0) {
+					$rvalue = array();
+					$count = 0;
+					foreach ($result as $row) {
+						
+						$rvalue[$count] = array("id" => $row[0],
+							"username" => $row[1],
+							"firstname" => $row[4],
+							"lastname" => $row[5],
+							"accesslevel" => $row[6],
+							"dateregistered" => strtotime($row[7]));
+						$count++;
+					}
+					
+				} else {
+					$rvalue = Engine::DATABASE_ERROR_NO_QUERY_RESULTS;
+				}
+			}
+			return $rvalue;
+		}
+		
 		public function submitNewPost($data) {
 			$rvalue = Engine::NO_ERROR_STATUS;
 			if (isset($data['type'])) {

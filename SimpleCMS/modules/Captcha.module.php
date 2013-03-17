@@ -3,7 +3,7 @@
 		private $MODULE_VERSION = "1.13.0317";
 		private $MODULE_NAME = "Captcha";
 		private $MODULE_AUTHOR = "Dillon Young";
-		private $MODULE_DESCRIPTION = "A wrapper module for the captcha system";
+		private $MODULE_DESCRIPTION = "A wrapper module for the captcha system using PNG images";
 		private $MODULE_FEATURE = 2048;
 		
 		private $database_module;
