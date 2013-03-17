@@ -85,7 +85,6 @@
 				die("No text post module installed");	
 			} else {
 				$this->modules[$this->textpost_module]->setDatabaseModule($this->modules[$this->database_module]);
-				//$this->modules[$this->textpost_module]->testDatabase();
 			}
 		}
 	
@@ -367,8 +366,19 @@
 							"details" => $details,
 							"dateposted" => strtotime($row[3]),
 							"author" => $author,
-							"type" => $row[5]);
+							"type" => $row[5],
+							"comments" => 0);
 						$count++;
+					}
+					
+					for ($count = 0; $count < count($rvalue); $count++) {
+						$commentresult = $this->modules[$this->database_module]->queryDatabase("SELECT COUNT(*) FROM scms_comments WHERE post = ".$rvalue[$count]['id'].";");
+
+						if (count($commentresult) > 0) {
+							foreach ($commentresult as $item) {
+								$rvalue[$count]['comments'] = $item[0];
+							}
+						}	
 					}
 					
 				} else {
