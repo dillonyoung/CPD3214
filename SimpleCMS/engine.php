@@ -26,6 +26,7 @@
 		const USER_STATUS_INVALID_LOGIN = 34;
 		const USER_STATUS_HAS_BEEN_LOGGED_OUT = 35;
 		const POST_NO_TYPE_CONFIGURED = 40;
+		const POST_NOT_EXISTS = 50;
 		const NO_ERROR_STATUS = 0;
 		
 		const FEATURE_SUPPORT_DATABASE = 2;
@@ -424,6 +425,56 @@
 				}
 			} else {
 				$rvalue = Engine::POST_NO_TYPE_CONFIGURED;	
+			}
+			return $rvalue;
+		}
+		
+		public function checkIfPostExists() {
+			$rvalue = Engine::DATABASE_ERROR_COULD_NOT_ACCESS_DATABASE;
+			if (isset($_GET['post'])) {
+				$post = htmlentities(addslashes($_GET['post']));
+				if ($this->database_module != -1) {
+					$result = $this->modules[$this->database_module]->queryDatabase("SELECT * FROM scms_posts WHERE id = ".$post.";");
+					
+					if (count($result) > 0) {
+						$rvalue = Engine::DATABASE_ERROR_NO_ERROR;
+					} else {
+						$rvalue = Engine::DATABASE_ERROR_NO_QUERY_RESULTS;
+					}
+				}
+			} else {
+				$rvalue == Engine::DATABASE_ERROR_NO_QUERY_RESULTS;
+			}
+			return $rvalue;
+		}
+		
+		public function displaySelectedPost() {
+			$rvalue = Engine::NO_ERROR_STATUS;
+			
+			$post = htmlentities(addslashes($_GET['post']));
+			$type = 0;
+			$rvalue = Engine::DATABASE_ERROR_COULD_NOT_ACCESS_DATABASE;
+			if ($this->database_module != -1) {
+				$result = $this->modules[$this->database_module]->queryDatabase("SELECT type FROM scms_posts WHERE id = ".$post.";");
+			}
+			
+			if (count($result) > 0) {
+				foreach ($result as $resultrow) {
+					$type = $resultrow[0];	
+				}
+			} else {
+				$rvalue = Engine::DATABASE_ERROR_NO_QUERY_RESULTS;
+			}
+
+			$data = array("id" => $post, "type" => $type);
+			
+			switch ($type) {
+				case Engine::FEATURE_SUPPORT_TEXT_POST:
+					$rvalue = $this->modules[$this->textpost_module]->displayPost($data);
+					break;
+				default:
+					$rvalue = Engine::POST_NO_TYPE_CONFIGURED;
+					break;
 			}
 			return $rvalue;
 		}

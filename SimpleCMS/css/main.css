@@ -228,7 +228,7 @@ footer > p
     clear: both;
 }
 
-.post > .postid, .post > .posttype, .post > .postdate
+.post > .postid, .post > .posttype, .post > .postdate, #postdetail > .postid, #postdetail > .postdate
 {
     display: none;
 }
@@ -239,18 +239,18 @@ span
     display: inline;
 }
 
-.post 
+.post, #postdetail
 {
     margin-bottom: 20px;
     position: relative;
 }
 
-.post > p 
+.post > p, #postdetail > span
 {
     padding: 0px;
 }
 
-.post > span
+.post > span, #postdetail > span
 {
     font-size: 12px;
     float: left;

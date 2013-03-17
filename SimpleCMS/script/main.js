@@ -3,6 +3,8 @@ $(document).ready(function () {
 
     loadMainPostList();
 
+    preparePostFooter();
+
 });
 
 function loadMainPostList() {
@@ -32,7 +34,7 @@ function loadMainPostList() {
                         if ($('#' + element).length == 0) {
                             var post = '';
                             if (posts[i].type == 4) {
-                                post += '<h2>' + posts[i].title + '</h2><p>' + posts[i].details.replace(/[\r\n]/g, "<br />") +'</p>';
+                                post += '<h2><a href="./view.php?post=' + posts[i].id + '">' + posts[i].title + '</a></h2><p>' + posts[i].details.replace(/[\r\n]/g, "<br />") + '</p>';
                                 post += '<span class="footer">Written by ' + posts[i].author + '&nbsp;</span>&nbsp;<span class="formatteddate">0 seconds</span><span>&nbsp;ago</span>';
                             }
                             post += '<div class="postid">' + posts[i].id + '</div>';
@@ -64,4 +66,19 @@ function updateDateTime() {
         $(this).children('.formatteddate').html(n);
 
     });
+}
+
+function preparePostFooter() {
+    if ($('#postdetail').length > 0) {
+        updatePostDateTime();
+        var timeout = setInterval(function () { updatePostDateTime() }, 1000);
+    }
+}
+
+function updatePostDateTime() {
+    var posts = $('#postdetail');
+
+    var d = $(posts).children('.postdate').html();
+    var n = formatDate(d);
+    $(posts).children('.formatteddate').html(n);
 }
