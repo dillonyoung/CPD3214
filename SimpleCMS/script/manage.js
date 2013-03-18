@@ -39,6 +39,7 @@ $(document).ready(function () {
         var postData = new Object();
         postData.title = $('#txt_newtextpost_title').val();
         postData.body = $('#txt_newtextpost_body').val();
+        postData.category = $('#cbo_newtextpost_category').val();
         postData.type = 'textpost';
         postData.mode = 1;
         postData.id = 0;
@@ -100,13 +101,15 @@ function loadPostList() {
                         if ($('#' + element).length == 0) {
                             var post = '';
                             if (posts[i].type == 4) {
-                                post += '<h2>' + posts[i].title + '</h2><input type="text" id="txt_title" /><p>' + posts[i].details.replace(/[\r\n]/g, "<br />") +'</p><textarea id="txt_body"></textarea>';
+                                post += '<h2>' + posts[i].title + '</h2><input type="text" id="txt_title" /><p>' + posts[i].details.replace(/[\r\n]/g, "<br />") + '</p><textarea id="txt_body"></textarea>';
                                 post += '<span class="buttons"><button id="btn_update_post">Save Changes Post</button>&nbsp;&nbsp;&nbsp;<button id="btn_cancel">Cancel</button></span>';
                                 post += '<span class="footer">Written by ' + posts[i].author + '&nbsp;</span>&nbsp;<span class="formatteddate">0 seconds</span><span>&nbsp;ago</span>';
+                                post += '<span class="footer">&nbsp;and filed under ' + posts[i].categoryname + '</span>';
                             }
                             post += '<div class="postid">' + posts[i].id + '</div>';
                             post += '<div class="posttype">' + posts[i].type + '</div>';
                             post += '<div class="postdate">' + posts[i].dateposted + '</div>';
+                            post += '<div class="postcategoryid">' + posts[i].categoryid + '</div>';
                             post += '<div class="edit" title="Edit Post"></div>';
                             post += '<div class="delete" title="Delete Post"></div>';
                             post += '<div class="clear"></div>';

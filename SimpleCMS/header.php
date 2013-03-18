@@ -23,7 +23,11 @@ $engine->setCookies();
 			if (strpos($_SERVER['SCRIPT_NAME'], "register.php") !== false) {
 				echo "<script type=\"text/javascript\" src=\"./script/register.js\"></script>\n";	
 			} else {
-				echo "<script type=\"text/javascript\" src=\"./script/main.js\"></script>\n";	
+				if (strpos($_SERVER['SCRIPT_NAME'], "view.php") !== false) {
+					echo "<script type=\"text/javascript\" src=\"./script/view.js\"></script>\n";
+				} else {
+					echo "<script type=\"text/javascript\" src=\"./script/main.js\"></script>\n";	
+				}
 			}
 		}
 	?>

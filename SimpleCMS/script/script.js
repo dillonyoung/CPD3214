@@ -57,6 +57,7 @@ function showLoginDialog(result) {
                 } else if (response.status == 1) {
                     displayMessage("You have successfully logged in", 1);
                     showLogoutDialog(response);
+                    updatePageDisplay();
                 }
             }
         });
@@ -92,8 +93,17 @@ function showLogoutDialog(result) {
                 } else if (response.status == 1) {
                     displayMessage("You have been successfully logged out", 1);
                     showLoginDialog(response);
+                    updatePageDisplay();
                 }
             }
         });
     });
+}
+
+function updatePageDisplay() {
+    if ($('#postcommenthead').length > 0) {
+        loadPostDetails();
+
+        loadPostComments();
+    }
 }

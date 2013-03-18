@@ -11,11 +11,12 @@
 		
 		$title = $post['title'];
 		$body = $post['body'];
+		$category = $post['category'];
 		$type = $post['type'];
 		$mode = $post['mode'];
 		$id = $post['id'];
 		
-		if (empty($title) || empty($body) || empty($type)) {
+		if (empty($title) || empty($body) || empty($type) || empty($category)) {
 			$status = -1;
 		} else {
 			$postdata = array();
@@ -27,9 +28,8 @@
 						$postdata['title'] = $title;
 						$postdata['details'] = $body;
 						$postdata['author'] = $rvalue;
-						$postdata['category'] = 1;
+						$postdata['category'] = $category;
 						$postdata['id'] = $id;
-						//$rvalue = $engine->getUserID();
 						
 						if ($mode == 1) {
 							$rvalue = $engine->submitNewPost($postdata);

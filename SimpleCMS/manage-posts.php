@@ -18,6 +18,18 @@
 <div class="space"></div>
 <label for="txt_newtextpost_body">Post:</label>
 <textarea name="txt_newtextpost_body" id="txt_newtextpost_body"></textarea>
+<label for="cbo_newtextpost_category">Category:</label>
+<select id="cbo_newtextpost_category">
+<option value="">Select Category</option>
+<?php
+	$rvalue = $engine->listCategories();
+	if ($rvalue != Engine::DATABASE_ERROR_COULD_NOT_ACCESS_DATABASE) {
+		foreach ($rvalue as $row) {
+			echo "<option value=\"".$row['id']."\">".$row['name']."</option>\n";
+		}
+	}
+?>
+</select>
 <div class="space"></div>
 <button id="btn_manage_submit_newtextpost">Submit Post</button>
 <button id="btn_manage_cancel_newtextpost">Cancel</button>

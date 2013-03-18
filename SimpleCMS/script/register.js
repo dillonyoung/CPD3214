@@ -89,7 +89,3 @@ function enableRegistrationForm() {
     $('#btn_register_register').prop('disabled', false);
     $('#btn_register_cancel').prop('disabled', false);
 }
-
-function redirectUser() {
-    window.location.href = window.document.referrer;
-}

@@ -36,6 +36,7 @@ function loadMainPostList() {
                             if (posts[i].type == 4) {
                                 post += '<h2><a href="./view.php?post=' + posts[i].id + '">' + posts[i].title + '</a></h2><p>' + posts[i].details.replace(/[\r\n]/g, "<br />") + '</p>';
                                 post += '<span class="footer">Written by ' + posts[i].author + '&nbsp;</span>&nbsp;<span class="formatteddate">0 seconds</span><span>&nbsp;ago</span>';
+                                post += '<span class="footer">&nbsp;and filed under ' + posts[i].categoryname + '</span>';
                                 post += '<span class="comments">' + posts[i].comments + ' Comments</span>';
                             }
                             post += '<div class="postid">' + posts[i].id + '</div>';

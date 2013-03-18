@@ -153,7 +153,7 @@
 			$this->modules[$this->database_module]->queryDatabase("CREATE TABLE scms_accounts (id BIGINT NOT NULL AUTO_INCREMENT, PRIMARY KEY(id), username VARCHAR(50) NOT NULL, UNIQUE (username), password VARCHAR(50) NOT NULL, email VARCHAR(100), firstname VARCHAR(50) NOT NULL, lastname VARCHAR(50), accesslevel INT NOT NULL, dateregistered DATETIME NOT NULL DEFAULT NOW(), accountstatus INT NOT NULL);");
 			$this->modules[$this->database_module]->queryDatabase("CREATE TABLE scms_categories (id BIGINT NOT NULL AUTO_INCREMENT, PRIMARY KEY(id), name VARCHAR(200) NOT NULL, UNIQUE (name));");
 			$this->modules[$this->database_module]->queryDatabase("CREATE TABLE scms_posts (id BIGINT NOT NULL AUTO_INCREMENT, PRIMARY KEY(id), title VARCHAR(200) NOT NULL, details TEXT NOT NULL, dateposted DATETIME NOT NULL DEFAULT NOW(), author BIGINT NOT NULL, FOREIGN KEY (author) REFERENCES scms_accounts(id), type INT NOT NULL, category BIGINT NOT NULL, FOREIGN KEY (category) REFERENCES scms_categories(id));");
-			$this->modules[$this->database_module]->queryDatabase("CREATE TABLE scms_comments (id BIGINT NOT NULL AUTO_INCREMENT, PRIMARY KEY(id), post BIGINT NOT NULL, FOREIGN KEY (post) REFERENCES scms_posts(id), dateposted DATETIME NOT NULL DEFAULT NOW(), author BIGINT NOT NULL, FOREIGN KEY (author) REFERENCES scms_accounts(id));");
+			$this->modules[$this->database_module]->queryDatabase("CREATE TABLE scms_comments (id BIGINT NOT NULL AUTO_INCREMENT, PRIMARY KEY(id), post BIGINT NOT NULL, FOREIGN KEY (post) REFERENCES scms_posts(id), dateposted DATETIME NOT NULL DEFAULT NOW(), author BIGINT NOT NULL, FOREIGN KEY (author) REFERENCES scms_accounts(id), comment TEXT NOT NULL);");
 		}
 		
 		public function isConfigured() {
@@ -284,6 +284,23 @@
 			$rvalue = Engine::DATABASE_ERROR_COULD_NOT_ACCESS_DATABASE;
 			if ($this->database_module != -1) {
 				$result = $this->modules[$this->database_module]->queryDatabase("SELECT id FROM scms_accounts WHERE username = '".$username."';");
+			}
+			
+			if (count($result) > 0) {
+				foreach ($result as $resultrow) {
+					$userid = $resultrow[0];	
+				}
+				$rvalue = $userid;
+			} else {
+				$rvalue = Engine::DATABASE_ERROR_NO_QUERY_RESULTS;
+			}
+			return $rvalue;
+		}
+		
+		public function getCategoryName($data) {
+			$rvalue = Engine::DATABASE_ERROR_COULD_NOT_ACCESS_DATABASE;
+			if ($this->database_module != -1) {
+				$result = $this->modules[$this->database_module]->queryDatabase("SELECT name FROM scms_categories WHERE id = ".$data.";");
 			}
 			
 			if (count($result) > 0) {
@@ -465,12 +482,15 @@
 							$author = $item[0];	
 						}
 						$details = $this->modules[$this->textpost_module]->createPostPreview($row[2]);
+						$category = $this->getCategoryName($row[6]);
 						$rvalue[$count] = array("id" => $row[0],
 							"title" => $row[1],
 							"details" => $details,
 							"dateposted" => strtotime($row[3]),
 							"author" => $author,
 							"type" => $row[5],
+							"categoryname" => $category,
+							"categoryid" => $row[6],
 							"comments" => 0);
 						$count++;
 					}
@@ -485,6 +505,33 @@
 						}	
 					}
 					
+				} else {
+					$rvalue = Engine::DATABASE_ERROR_NO_QUERY_RESULTS;
+				}
+			}
+			return $rvalue;
+		}
+		
+		public function listComments($data) {
+			$rvalue = Engine::DATABASE_ERROR_COULD_NOT_ACCESS_DATABASE;
+			if ($this->database_module != -1) {
+				$result = $this->modules[$this->database_module]->queryDatabase("SELECT * FROM scms_comments WHERE post = ".$data['id']." LIMIT ".$data['start'].", ".$data['size'].";");
+				
+				if (count($result) > 0) {
+					$rvalue = array();
+					$count = 0;
+					foreach ($result as $row) {
+						$authorresult = $this->modules[$this->database_module]->queryDatabase("SELECT firstname FROM scms_accounts WHERE id = ".$row[3].";");
+						foreach ($authorresult as $item) {
+							$author = $item[0];	
+						}
+
+						$rvalue[$count] = array("id" => $row[0],
+							"details" => $row[4],
+							"dateposted" => strtotime($row[2]),
+							"author" => $author);
+						$count++;
+					}					
 				} else {
 					$rvalue = Engine::DATABASE_ERROR_NO_QUERY_RESULTS;
 				}
@@ -512,6 +559,42 @@
 						$count++;
 					}
 					
+				} else {
+					$rvalue = Engine::DATABASE_ERROR_NO_QUERY_RESULTS;
+				}
+			}
+			return $rvalue;
+		}
+		
+		public function listCategories() {
+			$rvalue = Engine::DATABASE_ERROR_COULD_NOT_ACCESS_DATABASE;
+			if ($this->database_module != -1) {
+				$result = $this->modules[$this->database_module]->queryDatabase("SELECT * FROM scms_categories;");
+				
+				if (count($result) > 0) {
+					$rvalue = array();
+					$count = 0;
+					foreach ($result as $row) {
+						
+						$rvalue[$count] = array("id" => $row[0],
+							"name" => $row[1]);
+						$count++;
+					}
+					
+				} else {
+					$rvalue = Engine::DATABASE_ERROR_NO_QUERY_RESULTS;
+				}
+			}
+			return $rvalue;
+		}
+		
+		public function submitNewComment($data) {
+			$rvalue = Engine::DATABASE_ERROR_COULD_NOT_ACCESS_DATABASE;
+			if ($this->database_module != -1) {
+				$result = $this->modules[$this->database_module]->queryDatabase("INSERT INTO scms_comments (post, author, comment) VALUES(".$data['postid'].", ".$data['authorid'].", '".$data['comment']."');");
+				
+				if (count($result) > 0) {
+					$rvalue = Engine::DATABASE_ERROR_NO_ERROR;
 				} else {
 					$rvalue = Engine::DATABASE_ERROR_NO_QUERY_RESULTS;
 				}
@@ -589,10 +672,10 @@
 			return $rvalue;
 		}
 		
-		public function displaySelectedPost() {
+		public function displaySelectedPost($data) {
 			$rvalue = Engine::NO_ERROR_STATUS;
 			
-			$post = htmlentities(addslashes($_GET['post']));
+			$post = htmlentities(addslashes($data['id']));
 			$type = 0;
 			$rvalue = Engine::DATABASE_ERROR_COULD_NOT_ACCESS_DATABASE;
 			if ($this->database_module != -1) {

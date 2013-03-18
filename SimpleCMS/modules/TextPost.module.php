@@ -123,10 +123,22 @@
 					$rvalue = Engine::DATABASE_ERROR_NO_QUERY_RESULTS;
 				}
 				
+				$result = $this->database_module->queryDatabase("SELECT COUNT(*) FROM scms_comments WHERE post = ".$data['id'].";");
+				if (count($result) > 0) {
+					foreach ($result as $resultrow) {
+						$comment = $resultrow[0];
+						
+						$rvalue = Engine::DATABASE_ERROR_NO_ERROR;
+					}
+				} else {
+					$rvalue = Engine::DATABASE_ERROR_NO_QUERY_RESULTS;
+				}
+				
 				$postdata = "<h1>$title</h1>";
 				$postdata .= "<p>".nl2br($body)."</p>";
 				$postdata .= "<span class=\"footer\">Written by $author&nbsp;</span>&nbsp;<span class=\"formatteddate\">0 seconds</span><span>&nbsp;ago</span>";
 				$postdata .= "<div class=\"postdate\">".strtotime($date)."</div>";
+				$postdata .= "<div class=\"postcommentcount\">".$comment."</div>";
 			} else {
 				$postdata = "";	
 			}

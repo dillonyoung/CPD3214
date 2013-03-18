@@ -53,3 +53,7 @@ function seperateDate(source) {
 
     return value;
 }
+
+function redirectUser() {
+    window.location.href = window.document.referrer;
+}

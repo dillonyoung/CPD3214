@@ -239,7 +239,7 @@ footer > p
     clear: both;
 }
 
-.post > .postid, .post > .posttype, .post > .postdate, #postdetail > .postid, #postdetail > .postdate, .user > .userid, .user > .dateregistered, .user > .accountstatus
+.post > .postid, .post > .posttype, .post > .postdate, .post > .postcategoryid, #postdetail > .postid, #postdetail > .postdate, .user > .userid, .user > .dateregistered, .user > .accountstatus, .postcommentcount, .comment > .postid, .comment > .postdate
 {
     display: none;
 }
@@ -261,7 +261,7 @@ span
     padding: 0px;
 }
 
-.post > span, #postdetail > span, .user > span
+.post > span, #postdetail > span, .user > span, .comment > span
 {
     font-size: 12px;
     float: left;
@@ -271,4 +271,26 @@ span
 .post > span.comments 
 {
     float: right;
+}
+
+#postid, #postdetail, #postcomments, #postnewcomment 
+{
+    display: none;
+}
+
+#nouserloggedin 
+{
+    display: none;
+    padding: 5px;
+    text-align: center;
+    font-weight: bold;
+    color: White;
+    opacity: 0.9;
+    width: 90%;
+    margin: 0px auto;
+    -webkit-box-shadow: 5px 10px 20px rgba(50, 50, 50, 0.5);
+    -moz-box-shadow: 5px 10px 20px rgba(50, 50, 50, 0.5);
+    box-shadow: 5px 10px 20px rgba(50, 50, 50, 0.5);
+    background-color: #CCCC33;
+    border: 3px solid #AAAA00;
 }
