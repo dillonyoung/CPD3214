@@ -1,3 +1,11 @@
+<?php
+	/**
+	 * Description: Creates the manage posts page for the management console
+	 * Filename...: manage-posts.php
+	 * Author.....: Dillon Young (C0005790)
+	 * 
+	 */	
+?>
 <h1>Posts</h1>
 <p>Use the below options to manage posts.</p>
 <nav id="top">
@@ -22,8 +30,14 @@
 <select id="cbo_newtextpost_category">
 <option value="">Select Category</option>
 <?php
+	
+	// Get a list of categories
 	$rvalue = $engine->listCategories();
+	
+	// Check to ensure no error occurred
 	if ($rvalue != Engine::DATABASE_ERROR_COULD_NOT_ACCESS_DATABASE) {
+		
+		// Loop through the categories and add them to the page
 		foreach ($rvalue as $row) {
 			echo "<option value=\"".$row['id']."\">".$row['name']."</option>\n";
 		}

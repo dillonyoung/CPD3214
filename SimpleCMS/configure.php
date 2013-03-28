@@ -1,7 +1,15 @@
-
 <?php
+	/**
+	 * Description: Configures the database and admin account for the application
+	 * Filename...: listposts.php
+	 * Author.....: Dillon Young (C0005790)
+	 * 
+	 */	
+	
+	// Include the engine class
 	include_once('engine.php');
 
+	// Create a new instance of the engine class
 	$engine = new Engine;
 	
 	include('header-configure.php');
@@ -37,6 +45,7 @@
 			if (empty($user_password1)) { $error_password1 = "The password can not be blank"; }
 			if (empty($user_password2)) { $error_password2 = "The password can not be blank"; }
 			
+			// Check to ensure that no error has occurred
 			if (empty($error_username) && empty($error_password1) && empty($error_password2)) {
 			
 				// Check to see if the passwords match
@@ -44,9 +53,14 @@
 					$error_password1 = "Passwords entered do not match";
 					displayAdminForm($user_username, $user_password1, $user_password2, $error_username, $error_password1, $error_password2);
 				} else {
+					
+					// Add the new user as an admin
 					$engine->addUser($user_username, $user_password1, Engine::USER_ACCOUNT_TYPE_ADMIN);
+					
+					// Add the default categories to the application
 					$engine->addCategory('Uncategorized');
 					
+					// Create a default text post
 					$postdata = array();
 					$postdata['type'] = Engine::FEATURE_SUPPORT_TEXT_POST;
 					$postdata['title'] = 'Hello World';
@@ -55,14 +69,20 @@
 					$postdata['category'] = 1;
 					$postdata['id'] = 0;
 					
+					// Submit the default text post to the application
 					$engine->submitNewPost($postdata);
 					
+					// Display the finished page
 					displayFinished();
 				}
 			} else {
+				
+				// Display the admin form
 				displayAdminForm($user_username, $user_password1, $user_password2, $error_username, $error_password1, $error_password2);	
 			} 
 		} else {
+			
+			// Display the admin form
 			displayAdminForm($user_username, $user_password1, $user_password2, $error_username, $error_password1, $error_password2);
 		}
 	} else {
@@ -82,13 +102,16 @@
 			if (empty($database_password)) { $error_password = "The database password can not be blank"; }
 			if (empty($database_name)) { $error_name = "The database name can not be blank"; }
 			
+			// Check to ensure that no error has occurred
 			if (empty($error_host) && empty($error_username) && empty($error_password) && empty($error_name)) {
 			
 				// Update the database configuration and check to see if it is valid
 				$engine->updateDatabaseConfig($database_host, $database_username, $database_password, $database_name);
 
+				// Test the database connection
 				$rvalue = $engine->testDatabaseConnection();
 
+				// Check the status of the database test
 				if ($rvalue == Engine::DATABASE_ERROR_INVALID_USERNAME_PASSWORD) {
 					$error_username = "Could not connect with the supplied username";
 					$error_password = "Could not connect with the supplied password";
@@ -106,9 +129,13 @@
 					displayAdminForm($user_username, $user_password1, $user_password2, $error_username, $error_password1, $error_password2);
 				}
 			} else {
+				
+				// Display the database form
 				displayDatabaseForm($database_host, $database_username, $database_password, $database_name, $error_host, $error_username, $error_password, $error_name);
 			}
 		} else {
+			
+			// Display the database form
 			displayDatabaseForm($database_host, $database_username, $database_password, $database_name);
 		}
 	}
@@ -116,15 +143,14 @@
 	/**
 	 * Displays the database configuration form to the user
 	 *
-	 * @param mixed $db_host The database host name
-	 * @param mixed $db_username The database username
-	 * @param mixed $db_password The database password
-	 * @param mixed $db_name The database name
-	 * @param mixed $err_host The error description for the host name
-	 * @param mixed $err_username The error description for the username
-	 * @param mixed $err_password The error description for the password
-	 * @param mixed $err_name The error description for the database name
-	 * @return mixed Nothing
+	 * @param $db_host The database host name
+	 * @param $db_username The database username
+	 * @param $db_password The database password
+	 * @param $db_name The database name
+	 * @param $err_host The error description for the host name
+	 * @param $err_username The error description for the username
+	 * @param $err_password The error description for the password
+	 * @param $err_name The error description for the database name
 	 *
 	 */
 	function displayDatabaseForm($db_host, $db_username, $db_password, $db_name, $err_host = "", $err_username = "", $err_password = "", $err_name = "") {
@@ -136,6 +162,8 @@
 <div class="window_body">
 <p>Please enter the below details for your MySQL database. Once you have finished entering the database details please click on the continue button.</p>
 <?php
+	
+	// Check to see if any of the error messages are not blank
 	if (!empty($err_host) || !empty($err_username) || !empty($err_password) || !empty($err_name)) {
 		echo "<p class=\"error\">There were one or more errors with the below information. Please check the information and try again.</p>";	
 	}
@@ -157,13 +185,12 @@
 	/**
 	 * Displays the administrator configuration form to the user
 	 *
-	 * @param mixed $user_username The username for the administrator
-	 * @param mixed $user_password1 The first password for the administrator
-	 * @param mixed $user_password2 The second password for the administrator
-	 * @param mixed $err_username The error description for the administrator username
-	 * @param mixed $err_password1 The error description for the administrator password1
-	 * @param mixed $err_password2 The error description for the administrator password2
-	 * @return mixed Nothing
+	 * @param $user_username The username for the administrator
+	 * @param $user_password1 The first password for the administrator
+	 * @param $user_password2 The second password for the administrator
+	 * @param $err_username The error description for the administrator username
+	 * @param $err_password1 The error description for the administrator password1
+	 * @param $err_password2 The error description for the administrator password2
 	 *
 	 */
 	function displayAdminForm($user_username, $user_password1, $user_password2, $err_username, $err_password1, $err_password2) {
@@ -175,6 +202,8 @@
 <div class="window_body">
 <p>Please enter an username and password to be used for the administrator account. Once you have finished entering the user details please click on the continue button.</p>
 <?php
+	
+	// Check to see if any of the error messages are not blank
 	if (!empty($err_username) || !empty($err_password1) || !empty($err_password2)) {
 		echo "<p class=\"error\">There were one or more errors with the below information. Please check the information and try again.</p>";	
 	}
@@ -195,8 +224,6 @@
 	/**
 	 * Displays the finished configuring the system screen to the user
 	 *
-	 * @return mixed Nothing
-	 *
 	 */
 	function displayFinished() {
 ?><br />
@@ -214,5 +241,6 @@
 <?php	
 	}
 
+	// Include the footer
 	include('footer.php');
 ?>

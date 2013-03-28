@@ -294,3 +294,19 @@ span
     background-color: #CCCC33;
     border: 3px solid #AAAA00;
 }
+
+span.comments 
+{
+    background-image: url('../images/comment.png');
+    background-repeat:repeat-x;
+    background-position: top left;
+    color: White;
+    position: absolute;
+    top: 0px;
+    right: 0px;
+    width: 24px;
+    height: 24px;
+    text-align: center;
+    font-size: 10px;
+    padding-top: 2px;
+}

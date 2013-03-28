@@ -1,16 +1,27 @@
 <?php
+	/**
+	* Description: Manages the management console of the application
+	* Filename...: manage.php
+	* Author.....: Dillon Young (C0005790)
+	* 
+	*/	
 
+	// Include the engine class
 	include_once('engine.php');
 
+	// Create a new instance of the engine class
 	$engine = new Engine;
 
+	// Include the header file
 	include('header.php');
 	
+	// Get the selected section
 	$section = "";
 	if (isset($_GET['sec'])) {
 		$section = $_GET['sec'];
 	}
 	
+	// Determine which page should be loaded depending on the section
 	$pagefile = "";
 	switch ($section) {
 		case 'posts':
@@ -26,8 +37,11 @@
 			$pagefile = "manage-home.php";
 	}
 	
-	if (isset($_SESSION['username']) && isset($_SESSION['accesslevel'])) {
-		if ($_SESSION['accesslevel'] == Engine::USER_ACCOUNT_TYPE_ADMIN) {
+	// Check to see if the user is logged in
+	if ($engine->checkUserLoggedIn()) {
+		
+		// Check to ensure the user is an admin
+		if ($engine->isUserAdmin()) {
 ?>
 			<nav id="left">
 			<ul>
@@ -52,5 +66,6 @@
 <?php
 	}
 
+	// Include the footer file
 	include('footer.php');
 ?>

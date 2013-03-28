@@ -1,3 +1,11 @@
+<?php
+	/**
+	 * Description: Creates the header for the configuration page
+	 * Filename...: header-configure.php
+	 * Author.....: Dillon Young (C0005790)
+	 * 
+	 */	
+?>
 <!DOCTYPE html>
 <html>
 <head>

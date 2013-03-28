@@ -1,21 +1,40 @@
-var selectedPost = null;
+/**
+* Description: Contains managements features for the application
+* Filename...: manage.js
+* Author.....: Dillon Young (C0005790)
+* 
+*/
 
+var selectedPost = null;
+var timeOut;
+
+// Check to see if the document is ready
 $(document).ready(function () {
 
+    // Load the post list
     loadPostList();
 
+    // Load the user list
     loadUserList();
 
+    // Update the button styles
     $('button').button();
 
+    // Register a click listener for the new post button
     $('button#btn_manage_newpost').click(function () {
+
+        // Show the new post form
         $('#newposttype').fadeIn(500);
         $(this).attr('disabled', 'disabled');
     });
 
+    // Register a change listener for the post type combo box
     $('select#cbo_posttype_select').change(function () {
 
+        // Hide the text post entry
         $('#newtextpostentry').fadeOut(500);
+
+        // Determine which post type should be displayed
         switch ($(this).val()) {
             case "textpost":
                 $('#newtextpostentry').fadeIn(500);
@@ -25,7 +44,10 @@ $(document).ready(function () {
         }
     });
 
+    // Register a click listener for the new text post button
     $('button#btn_manage_cancel_newtextpost').click(function () {
+
+        // Update the screen
         $('#newtextpostentry').fadeOut(500);
         $('#newposttype').fadeOut(500);
         $('button#btn_manage_newpost').removeAttr('disabled');
@@ -34,8 +56,10 @@ $(document).ready(function () {
         $('select#cbo_posttype_select').val('');
     });
 
+    // Register a click listener for the submit new text post button
     $('button#btn_manage_submit_newtextpost').click(function () {
 
+        // Create a new request object
         var postData = new Object();
         postData.title = $('#txt_newtextpost_title').val();
         postData.body = $('#txt_newtextpost_body').val();
@@ -43,30 +67,50 @@ $(document).ready(function () {
         postData.type = 'textpost';
         postData.mode = 1;
         postData.id = 0;
+
+        // Convert the object to json
         var query = JSON.stringify(postData);
 
+        // Attempt to submit the new post
         $.ajax({
             type: "POST",
             url: "post.php",
             dataType: "json",
             data: { json: query },
             success: function (data) {
+
+                // Get the reponse data
                 var response = data;
 
+                // Check to see the response data
                 if (response.status == 0) {
+
+                    // Display an error message to the user
                     displayMessage("There was an error in the post", 2);
                 } else if (response.status == -1) {
+
+                    // Display an error message to the user
                     displayMessage("One or more fields are blank", 2);
                 } else if (response.status == -2) {
+
+                    // Display an error message to the user
                     displayMessage("There was an error submitting your post, please try again", 2);
                 } else if (response.status == 1) {
+
+                    // Update the screen display
                     $('#newtextpostentry').fadeOut(500);
                     $('#newposttype').fadeOut(500);
                     $('button#btn_manage_newpost').removeAttr('disabled');
+
+                    // Display a sucess message to the user
                     displayMessage("Your new post has been successfully posted", 1);
+
+                    // Reset the entry form
                     $('#txt_newtextpost_title').val('');
                     $('#txt_newtextpost_body').val('');
                     $('select#cbo_posttype_select').val('');
+
+                    // Load the post list
                     loadPostList();
                 }
             }
@@ -74,32 +118,55 @@ $(document).ready(function () {
     });
 });
 
+/**
+ * Load the post list
+ *
+ */
 function loadPostList() {
 
+    // Check to ensure that the post list should be displayed
     if ($('#postlist').length > 0) {
+
+        // Build the request object
         var listData = new Object();
         listData.start = 0;
         listData.size = 30;
+
+        // Convert the object to json
         var query = JSON.stringify(listData);
 
+        // Attempt to load the post list
         $.ajax({
             type: "POST",
             url: "listposts.php",
             dataType: "json",
             data: { json: query },
             success: function (data) {
+
+                // Get the response data
                 var response = data;
 
+                // Check to see the response status
                 if (response.status == 0 || response.status == -1) {
-                    //displayMessage("One or more fields are blank", 2);
+
                 } else {
+
+                    // Get the posts data
                     var posts = response.posts;
+
+                    // Loop through the posts
                     for (var i = 0; i < posts.length; i++) {
+
+                        // Setup the initial post details
                         var element = 'post' + i;
                         var posthold = $('<div id="' + element + '" class="post"><div>');
 
+                        // Check to ensure the post is not already visible
                         if ($('#' + element).length == 0) {
+
                             var post = '';
+
+                            // Check to see if the post type is a text post
                             if (posts[i].type == 4) {
                                 post += '<h2>' + posts[i].title + '</h2><input type="text" id="txt_title" /><p>' + posts[i].details.replace(/[\r\n]/g, "<br />") + '</p><textarea id="txt_body"></textarea>';
                                 post += '<span class="buttons"><button id="btn_update_post">Save Changes Post</button>&nbsp;&nbsp;&nbsp;<button id="btn_cancel">Cancel</button></span>';
@@ -113,12 +180,16 @@ function loadPostList() {
                             post += '<div class="edit" title="Edit Post"></div>';
                             post += '<div class="delete" title="Delete Post"></div>';
                             post += '<div class="clear"></div>';
-                            //formatDate(posts[i].dateposted);
 
+                            // Add the post to the screen
                             post = $(post);
                             $(posthold).hide().prependTo('#postlist').fadeIn(2000);
                             $(posthold).append(post);
+
+                            // Register a mouse enter listener for the post
                             $('#' + element).on('mouseenter', function () {
+
+                                // Update the display
                                 $(this).clearQueue();
                                 $(this).animate({
                                     backgroundColor: '#dddddd'
@@ -127,7 +198,10 @@ function loadPostList() {
                                 $(this).children('.delete').fadeIn(1000);
                             });
 
+                            // Register a mouse leave listener for the post
                             $(posthold).on('mouseleave', function () {
+
+                                // Update the display
                                 $(this).animate({
                                     backgroundColor: '#ffffff'
                                 }, 1000);
@@ -135,62 +209,100 @@ function loadPostList() {
                                 $(this).children('.delete').fadeOut(500);
                             });
 
+                            // Register a click listener for the delete button on the post
                             $(posthold).children('.delete').on('click', function () {
+
+                                // Delete the post
                                 deletePost($(this).parent());
                             });
 
+                            // Register a click listener for the edit button on the post
                             $(posthold).children('.edit').on('click', function () {
+
+                                // Edit the post
                                 editPost($(this).parent());
                             });
 
+                            // Register a click listener for the update post button on the post
                             $(posthold).children('.buttons').children('#btn_update_post').on('click', function () {
+
+                                // Update the content of the post
                                 updateEditPost($(this).parent().parent());
                             });
 
+                            // Register a click listener for the cancel update button on the post
                             $(posthold).children('.buttons').children('#btn_cancel').on('click', function () {
+
+                                // Cancel the edit
                                 cancelEditPost($(this).parent().parent());
                             });
                         } else {
 
                         }
                     }
+
+                    // Update the date and time on the posts
                     updateDateTime();
-                    var timeout = setInterval(function () { updateDateTime() }, 1000);
+
+                    // Set the timer to update the date time in the post footer if not set
+                    if (timeOut == null) {
+                        timeOut = setInterval(function () { updateDateTime() }, 1000);
+                    }
                 }
             }
         });
-
     }
 }
 
+/**
+ * Load the user list
+ *
+ */
 function loadUserList() {
 
+    // Check to ensure the user list should be displayed
     if ($('#userlist').length > 0) {
 
+        // Build the request object
         var listData = new Object();
         listData.start = 0;
         listData.size = 30;
+
+        // Convert the object to json
         var query = JSON.stringify(listData);
 
+        // Attempt to load the user list
         $.ajax({
             type: "POST",
             url: "listusers.php",
             dataType: "json",
             data: { json: query },
             success: function (data) {
+
+                // Get the response data
                 var response = data;
 
+                // Check to see the response status
                 if (response.status == 0 || response.status == -1) {
-                    //displayMessage("One or more fields are blank", 2);
+
                 } else {
+
+                    // Load the users
                     var users = response.users;
+
+                    // Loop through the users
                     for (var i = 0; i < users.length; i++) {
+
+                        // Setup the initial user details
                         var element = 'user' + i;
                         var userhold = $('<div id="' + element + '" class="user"><div>');
 
+                        // Check to ensure the user is not already exist
                         if ($('#' + element).length == 0) {
+
                             var user = '';
 
+                            // Build the user details
                             user += '<h2>' + users[i].username + '</h2>';
                             user += '<p>First Name: ' + users[i].firstname + '</p>';
                             user += '<p>Last Name: ' + users[i].lastname + '</p>';
@@ -202,16 +314,22 @@ function loadUserList() {
                             user += '<div class="unlock" title="Unlock User"></div>';
                             user += '<div class="lock" title="Lock User"></div>';
                             user += '<div class="clear"></div>';
-                            //formatDate(users[i].dateregistered);
 
+                            // Add the user to the screen
                             user = $(user);
                             $(userhold).hide().prependTo('#userlist').fadeIn(2000);
                             $(userhold).append(user);
+
+                            // Register a mouse enter listener for the user
                             $('#' + element).on('mouseenter', function () {
+
+                                // Update the screen
                                 $(this).clearQueue();
                                 $(this).animate({
                                     backgroundColor: '#dddddd'
                                 }, 1000);
+
+                                // Update the lock status controls based on the account
                                 var status = $(this).children('.accountstatus').text();
                                 if (status == 1) {
                                     $(this).children('.lock').fadeIn(1000);
@@ -220,10 +338,15 @@ function loadUserList() {
                                 }
                             });
 
+                            // Register a mouse leave listener for the user
                             $(userhold).on('mouseleave', function () {
+
+                                // Update the screen
                                 $(this).animate({
                                     backgroundColor: '#ffffff'
                                 }, 1000);
+
+                                // Update the lock status controls based on the account
                                 var status = $(this).children('.accountstatus').text();
                                 if (status == 1) {
                                     $(this).children('.lock').fadeOut(500);
@@ -232,19 +355,31 @@ function loadUserList() {
                                 }
                             });
 
+                            // Register a click listener on the lock button for the user
                             $(userhold).children('.lock').on('click', function () {
+
+                                // Lock the user
                                 lockUser($(this).parent());
                             });
 
+                            // Register a click listener on the unlock button for the user
                             $(userhold).children('.unlock').on('click', function () {
+
+                                // Unlock the user
                                 unlockUser($(this).parent());
                             });
                         } else {
 
                         }
                     }
+
+                    // Update the date and time on the posts
                     updateDateTime();
-                    var timeout = setInterval(function () { updateDateTime() }, 1000);
+
+                    // Set the timer to update the date time in the post footer if not set
+                    if (timeOut == null) {
+                        timeOut = setInterval(function () { updateDateTime() }, 1000);
+                    }
                 }
             }
         });
@@ -252,68 +387,115 @@ function loadUserList() {
     }
 }
 
+/**
+ * Update the date time display
+ *
+ */
 function updateDateTime() {
+
+    // Check to see if the post list is visible
     if ($('#postlist').length > 0) {
+
+        // Get the post list
         var posts = $('#postlist');
+
+        // Loop through the posts and update the date time
         posts.children().each(function () {
-            var d = $(this).children('.postdate').html();
-            var n = formatDate(d);
+            var n = formatDate($(this).children('.postdate').html());
             $(this).children('.formatteddate').html(n);
         });
     }
 
+    // Check to see if the user list is visible
     if ($('#userlist').length > 0) {
+
+        // Get the user list
         var posts = $('#userlist');
+
+        // Loop through the users and update the date time
         posts.children().each(function () {
-            var d = $(this).children('.dateregistered').html();
-            var n = formatDate(d);
+            var n = formatDate($(this).children('.dateregistered').html());
             $(this).children('.formatteddate').html(n);
         });
     }
 }
 
+/**
+ * Update the selected post
+ *
+ * @param post The reference to the post element
+ *
+ */
 function updateEditPost(post) {
 
+    // Create the post request object
     var postData = new Object();
     postData.title = $(post).children('#txt_title').val();
     postData.body = $(post).children('#txt_body').val();
     postData.type = 'textpost';
     postData.mode = 2
     postData.id = $(post).children('.postid').html();
+
+    // Convert the object to json
     var query = JSON.stringify(postData);
 
+    // Attempt to edit the selected post
     $.ajax({
         type: "POST",
         url: "post.php",
         dataType: "json",
         data: { json: query },
         success: function (data) {
+
+            // Get the response data
             var response = data;
 
+            // Check to see the response data
             if (response.status == 0) {
+
+                // Display an error message to the user
                 displayMessage("There was an error in the post", 2);
             } else if (response.status == -1) {
+
+                // Display an error message to the user
                 displayMessage("One or more fields are blank", 2);
             } else if (response.status == -2) {
+
+                // Display an error message to the user
                 displayMessage("There was an error updating your post, please try again", 2);
             } else if (response.status == 1) {
+
+                // Update the post display
                 $(post).children('h2').html($(post).children('#txt_title').val());
                 $(post).children('p').html($(post).children('#txt_body').val().replace(/[\r\n]/g, "<br />"));
+
+                // Cancel the edit
                 cancelEditPost(post);
+
+                // Display a success message to the user
                 displayMessage("Your changes have been successfully saved", 1);
             }
         }
     });
 }
 
+/**
+ * Cancel editing the post
+ *
+ * @param post The reference to the post element
+ *
+ */
 function cancelEditPost(post) {
 
+    // Check to see if a post is currently selected
     if (selectedPost != null) {
 
+        // Create a select object
         var selectedData = new Object();
         selectedData.id = $(selectedPost).children('.postid').html();
         selectedData.type = $(selectedPost).children('.posttype').html();
 
+        // Check to see if the object type is text type
         if (selectedData.type == 4) {
             $(selectedPost).children('#txt_title').hide();
             $(selectedPost).children('#txt_body').hide();
@@ -326,17 +508,29 @@ function cancelEditPost(post) {
     }
 }
 
+/**
+ * Edit the selected post
+ *
+ * @param post The reference to the selected post
+ *
+ */
 function editPost(post) {
 
+    // Cancel editing the post
     cancelEditPost(post);
 
+    // Set the selected post
     selectedPost = post;
 
+    // Create a post object
     var postData = new Object();
     postData.id = $(post).children('.postid').html();
     postData.type = $(post).children('.posttype').html();
 
+    // Check to see if the post type is text post
     if (postData.type == 4) {
+
+        // Update the screen
         $(post).children('h2').hide();
         $(post).children('p').hide();
         $(post).children('#txt_title').val($(post).children('h2').html());
@@ -348,7 +542,15 @@ function editPost(post) {
     }
 }
 
+/**
+ * Delete the selected post
+ *
+ * @param post The reference to the select post
+ *
+ */
 function deletePost(post) {
+
+    // Display a message dialog prompting the user to confirm they want to delete the selected post
     $('#dialog-confirm').attr('title', 'Delete Post');
     $('#dialog-confirm').html("Are you sure you want to delete the selected post? This action can not be undone.");
     $("#dialog-confirm").dialog({
@@ -358,22 +560,34 @@ function deletePost(post) {
         modal: true,
         buttons: {
             "Yes": function () {
+
+                // Create the post object
                 var postData = new Object();
                 postData.id = $(post).children('.postid').html();
                 postData.type = $(post).children('.posttype').html();
+
+                // Convert the object to json
                 var query = JSON.stringify(postData);
 
+                // Attempt to delete the selected post
                 $.ajax({
                     type: "POST",
                     url: "deletepost.php",
                     dataType: "json",
                     data: { json: query },
                     success: function (data) {
+
+                        // Get the response data
                         var response = data;
 
+                        // Check to see the response status
                         if (response.status == 0 || response.status == -1) {
+
+                            // Display an error message to the user
                             displayMessage("There was an error deleting the select post, please try again", 2);
                         } else {
+
+                            // Display a success message to the user
                             displayMessage("The selected post has been successfully deleted", 1);
                             $(post).fadeOut(1000);
                         }
@@ -388,7 +602,15 @@ function deletePost(post) {
     });
 }
 
+/**
+ * Locks the selected user account
+ *
+ * @param user The reference to the selected user
+ *
+ */
 function lockUser(user) {
+
+    // Display a message dialog prompting the user to confirm they want to lock the selected user account
     $('#dialog-confirm').attr('title', 'Lock User Account');
     $('#dialog-confirm').html("Are you sure you want to lock the selected user account?");
     $("#dialog-confirm").dialog({
@@ -398,21 +620,33 @@ function lockUser(user) {
         modal: true,
         buttons: {
             "Yes": function () {
+
+                // Create the user object
                 var userData = new Object();
                 userData.userid = $(user).children('.userid').html();
+
+                // Convert the object to json
                 var query = JSON.stringify(userData);
 
+                // Attempt to lock the selected user
                 $.ajax({
                     type: "POST",
                     url: "lockuser.php",
                     dataType: "json",
                     data: { json: query },
                     success: function (data) {
+
+                        // Get the response data
                         var response = data;
 
+                        // Check to see the response status
                         if (response.status == 0 || response.status == -1) {
+
+                            // Display an error message to the user
                             displayMessage("There was an error locking the selected user account, please try again", 2);
                         } else {
+
+                            // Display a success message to the user
                             displayMessage("The selected user account has been successfully locked", 1);
                             $(user).children('.accountstatus').html(2);
                         }
@@ -427,7 +661,15 @@ function lockUser(user) {
     });
 }
 
+/**
+* Unlocks the selected user account
+*
+* @param user The reference to the selected user
+*
+*/
 function unlockUser(user) {
+
+    // Display a message dialog prompting the user to confirm they want to unlock the selected user account
     $('#dialog-confirm').attr('title', 'Unlock User Account');
     $('#dialog-confirm').html("Are you sure you want to unlock the selected user account?");
     $("#dialog-confirm").dialog({
@@ -437,21 +679,33 @@ function unlockUser(user) {
         modal: true,
         buttons: {
             "Yes": function () {
+
+                // Create the user object
                 var userData = new Object();
                 userData.userid = $(user).children('.userid').html();
+
+                // Convert the object to json
                 var query = JSON.stringify(userData);
 
+                // Attempt to unlock the selected user
                 $.ajax({
                     type: "POST",
                     url: "unlockuser.php",
                     dataType: "json",
                     data: { json: query },
                     success: function (data) {
+
+                        // Get the response data
                         var response = data;
 
+                        // Check to see the response status
                         if (response.status == 0 || response.status == -1) {
+
+                            // Display an error message to the user
                             displayMessage("There was an error unlocking the selected user account, please try again", 2);
                         } else {
+
+                            // Display a success message to the user
                             displayMessage("The selected user account has been successfully unlocked", 1);
                             $(user).children('.accountstatus').html(1);
                         }

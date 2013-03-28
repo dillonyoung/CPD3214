@@ -1,25 +1,49 @@
 <?php
-
+	/**
+	 * Description: Registers a new user with the system
+	 * Filename...: register.php
+	 * Author.....: Dillon Young (C0005790)
+	 * 
+	 */	
+	
+	// Set the initial status
+	$status = 0;
+	
+	// Include the engine class
 	include_once('engine.php');
 
-	$engine = new Engine;
-
+	// Check to ensure that the application is configured
 	if ($engine->isConfigured()) {
 		
+		// Check to ensure that the user is not currently logged in
 		if ($engine->checkUserLoggedIn() == Engine::USER_STATUS_NOT_LOGGED_IN) {
+			
+			// Build the registration details
 			$details = array('user_firstname' => '', 'user_lastname' => '', 'user_username' => '', 'user_password1' => '', 'user_password2' => '');
 			include('header.php');
 			
+			// Display the registration form
 			displayRegistrationForm($details);
 			
+			// Include the footer file
 			include('footer.php');
 		} else {
+			
+			// Redirect the user back to the main page
 			header('location: ./');
 		}
 	} else {
+		
+		// Redirect the user to the configuration page
 		header('location: ./configure.php');
 	}
 	
+	/**
+	 * Displays the registration page to the user
+	 *
+	 * @param $details An array of user details
+	 *
+	 */	
 	function displayRegistrationForm($details) {
 	?>
 		<br />
@@ -28,11 +52,6 @@
 		<div class="window_header">Register New Account</div>
 		<div class="window_body">
 		<p>Please fill out the below form to register for a new account. Once you are done please click on the Register button.</p>
-		<?php
-			if (!empty($err_host) || !empty($err_username) || !empty($err_password) || !empty($err_name)) {
-				echo "<p class=\"error\">There were one or more errors with the below information. Please check the information and try again.</p>";	
-			}
-		?>
 		<form action="./register.php" method="post" name="register_user">
 		<p><label>First Name: </label><input type="text" name="txt_user_firstname" id="txt_user_firstname" value="<?php echo $details['user_firstname']; ?>"><label class="error" id="err_user_firstname"></label></p>
 		<p><label>Last Name: </label><input type="text" name="txt_user_lastname" id="txt_user_lastname" value="<?php echo $details['user_lastname']; ?>"><label class="error" id="err_user_lastname"></label></p>
