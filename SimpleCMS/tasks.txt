@@ -5,4 +5,4 @@
 
 - fix the add new post to update the display with the new post
 
-- fix edit post because of the category
+- finish new image post adding, editing, deleting, viewing

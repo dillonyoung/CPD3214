@@ -40,21 +40,21 @@ article#manage > h1
     font-size: 30px;
 }
 
-#newposttype, #newtextpostentry
+#newposttype, #newtextpostentry, #newimagepostentry
 {
     display: none;
     position: relative;
     margin-bottom: 20px;
 }
 
-#newtextpostentry input[type="text"]
+#newtextpostentry input[type="text"], #newimagepostentry input[type="text"], #newimagepostentry input[type="file"]
 {
     width: 400px;
     padding: 5px;
     margin-bottom: 10px;
 }
 
-#newtextpostentry textarea 
+#newtextpostentry textarea, #newimagepostentry textarea 
 {
     width: 400px;
     height: 60px;
@@ -63,12 +63,12 @@ article#manage > h1
     margin-bottom: 10px;
 }
 
-newtextpostentry span 
+#newtextpostentry span, #newimagepostentry span
 {
     clear: both;
 }
 
-newtextpostentry .space 
+#newtextpostentry .space, #newimagepostentry .space
 {
     width: 25%;
 }
@@ -174,4 +174,10 @@ span.buttons
 .user > p 
 {
     padding: 0px;
+}
+
+.manageimage 
+{
+    display: block;
+    width: 600px;
 }

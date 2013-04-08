@@ -310,3 +310,9 @@ span.comments
     font-size: 10px;
     padding-top: 2px;
 }
+
+.image 
+{
+    display: block;
+    width: 800px;
+}

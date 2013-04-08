@@ -1,18 +1,18 @@
 <?php
 	/**
-	 * Description: A text post processing module
-	 * Filename...: TextPost.module.php
+	 * Description: An image post processing module
+	 * Filename...: ImagePost.module.php
 	 * Author.....: Dillon Young (C0005790)
 	 * 
 	 */	
-	class TextPost {
+	class ImagePost {
 		
 		// Declare module detail variables
-		private $MODULE_VERSION = "1.13.0311";
-		private $MODULE_NAME = "TextPost";
+		private $MODULE_VERSION = "1.13.0403";
+		private $MODULE_NAME = "ImagePost";
 		private $MODULE_AUTHOR = "Dillon Young";
-		private $MODULE_DESCRIPTION = "A wrapper module for a text post";
-		private $MODULE_FEATURE = 4;
+		private $MODULE_DESCRIPTION = "A wrapper module for a image post";
+		private $MODULE_FEATURE = 8;
 		
 		// Declare module variables
 		private $database_module;
@@ -107,10 +107,10 @@
 			
 			// Check to see if the type of post matches the supported features of the module
 			if (isset($data['type']) && $data['type'] == $this->MODULE_FEATURE) {
-					
+
 				// Attempt to insert the new post into the database
 				$result = $this->database_module->queryDatabase("INSERT INTO scms_posts (title, details, filename, author, type, category) " .
-					"VALUES('".$data['title']."', '".$data['details']."', '<blank>', ".$data['author'].", ".$data['type'].", ".$data['category'].");");
+					"VALUES('".$data['title']."', '".$data['details']."', '".$data['filename']."', ".$data['author'].", ".$data['type'].", ".$data['category'].");");
 
 				// Check on the success of the insert
 				if (count($result) > 0) {
@@ -138,11 +138,11 @@
 			
 			// Check to see if the type of post matches the supported features of the module
 			if (isset($data['type']) && $data['type'] == $this->MODULE_FEATURE) {
-					
+				
 				// Attempt to update the selected post in the database
 				$result = $this->database_module->queryDatabase("UPDATE scms_posts SET title = '".$data['title']."', details = '".$data['details']."' " .
 					"WHERE id = ".$data['id'].";");
-					
+				
 				// Check on the success of the update
 				if (count($result) > 0) {
 					$rvalue = Engine::DATABASE_ERROR_NO_ERROR;
@@ -185,6 +185,7 @@
 			return $rvalue;
 		}
 		
+		
 		/**
 		 * Builds the HTML to display a selected post
 		 *
@@ -210,6 +211,7 @@
 					foreach ($result as $resultrow) {
 						$title = $resultrow[1];
 						$body = $resultrow[2];
+						$filename = $resultrow[3];
 						$date = $resultrow[4];
 						$authorid = $resultrow[5];
 							
@@ -257,6 +259,7 @@
 				
 				// Build the post HTML
 				$postdata = "<h1>$title</h1>";
+				$postdata .= "<img src='./previewimage.php?f=".$filename."' class='image'>";
 				$postdata .= "<p>".nl2br($body)."</p>";
 				$postdata .= "<span class=\"footer\">Written by $author&nbsp;</span>&nbsp;<span class=\"formatteddate\">0 seconds</span><span>&nbsp;ago</span>";
 				$postdata .= "<div class=\"postdate\">".strtotime($date)."</div>";

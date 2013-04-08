@@ -49,6 +49,40 @@
 <button id="btn_manage_cancel_newtextpost">Cancel</button>
 <span></span>
 </div>
+
+<div id="newimagepostentry">
+<label for="txt_newimagepost_title">Title:</label>
+<input type="text" name="txt_newimagepost_title" id="txt_newimagepost_title" />
+<div class="space"></div>
+<label for="txt_newimagepost_body">Post:</label>
+<textarea name="txt_newimagepost_body" id="txt_newimagepost_body"></textarea>
+<label for="txt_newimagepost_file">Image:</label>
+<input type="file" name="txt_newimagepost_file" id="txt_newimagepost_file" />
+<input type="hidden" name="txt_newimagepost_filename" id="txt_newimagepost_filename" />
+<label for="cbo_newimagepost_category">Category:</label>
+<select id="cbo_newimagepost_category">
+<option value="">Select Category</option>
+<?php
+	
+	// Get a list of categories
+	$rvalue = $engine->listCategories();
+	
+	// Check to ensure no error occurred
+	if ($rvalue != Engine::DATABASE_ERROR_COULD_NOT_ACCESS_DATABASE) {
+		
+		// Loop through the categories and add them to the page
+		foreach ($rvalue as $row) {
+			echo "<option value=\"".$row['id']."\">".$row['name']."</option>\n";
+		}
+	}
+?>
+</select>
+<div class="space"></div>
+<button id="btn_manage_submit_newimagepost">Submit Post</button>
+<button id="btn_manage_cancel_newimagepost">Cancel</button>
+<span></span>
+</div>
+
 <div id="postlist"></div>
 <div id="dialog-confirm" title="Empty the recycle bin?">
   <p>These items will be permanently deleted and cannot be recovered. Are you sure?</p>

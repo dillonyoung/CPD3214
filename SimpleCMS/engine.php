@@ -41,13 +41,16 @@
 		const FEATURE_SUPPORT_TEXT_POST = 4;
 		const FEATURE_SUPPORT_IMAGE_POST = 8;
 		const FEATURE_SUPPORT_YOUTUBE_POST = 16;
+		const FEATURE_SUPPORT_FILE_UPLOAD = 32;
 		const FEATURE_SUPPORT_CAPTCHA = 2048;
 	
 		// Declare variables
 		private $modules = array();
 		private $database_module;
 		private $textpost_module;
+		private $imagepost_module;
 		private $captcha_module;
+		private $fileupload_module;
 
 		/**
 		 * The constructor for the engine
@@ -70,7 +73,9 @@
 			// Check for modules which support required features
 			$this->database_module = -1;
 			$this->textpost_module = -1;
+			$this->imagepost_module = -1;
 			$this->captcha_module = -1;
+			$this->fileupload_module = -1;
 			
 			// Loop through the modules and find required modules
 			for ($i = 0; $i < count($this->modules); $i++) {
@@ -88,9 +93,19 @@
 						$this->textpost_module = $i;	
 					}
 					
+					// Check to see if the module supports image post features
+					if ($this->modules[$i]->getFeatures() == Engine::FEATURE_SUPPORT_IMAGE_POST) {
+						$this->imagepost_module = $i;	
+					}
+					
 					// Check to see if the module supports captcha features
 					if ($this->modules[$i]->getFeatures() == Engine::FEATURE_SUPPORT_CAPTCHA) {
 						$this->captcha_module = $i;	
+					}
+					
+					// Check to see if the module supports file upload features
+					if ($this->modules[$i]->getFeatures() == Engine::FEATURE_SUPPORT_FILE_UPLOAD) {
+						$this->fileupload_module = $i;	
 					}
 				}
 			}
@@ -113,6 +128,15 @@
 				$this->modules[$this->textpost_module]->setDatabaseModule($this->modules[$this->database_module]);
 			}
 			
+			// Check to see if a image post module is installed
+			if ($this->imagepost_module == -1) {
+				die("No image post module installed");	
+			} else {
+				
+				// Update the database reference for the module
+				$this->modules[$this->imagepost_module]->setDatabaseModule($this->modules[$this->database_module]);
+			}
+			
 			// Check to see if a captcha module is installed
 			if ($this->captcha_module == -1) {
 				die("No captcha module installed");	
@@ -120,6 +144,15 @@
 				
 				// Update the database reference for the module
 				$this->modules[$this->captcha_module]->setDatabaseModule($this->modules[$this->database_module]);
+			}
+			
+			// Check to see if a file upload module is installed
+			if ($this->fileupload_module == -1) {
+				die("No file upload module installed");	
+			} else {
+				
+				// Update the database reference for the module
+				$this->modules[$this->fileupload_module]->setDatabaseModule($this->modules[$this->database_module]);
 			}
 		}
 	
@@ -159,6 +192,13 @@
 						$rvalue = true;
 					}
 					break;
+				case Engine::FEATURE_SUPPORT_IMAGE_POST:
+					
+					// Check to ensure that the module is installed
+					if ($this->imagepost_module != -1) {
+						$rvalue = true;
+					}
+					break;
 				case Engine::FEATURE_SUPPORT_CAPTCHA:
 				
 					// Check to ensure that the module is installed
@@ -166,6 +206,14 @@
 						$rvalue = true;
 					}
 					break;
+				case Engine::FEATURE_SUPPORT_FILE_UPLOAD:
+					
+					// Check to ensure that the module is installed
+					if ($this->fileupload_module != -1) {
+						$rvalue = true;
+					}
+					break;
+					
 			}	
 			
 			// Return the result
@@ -249,11 +297,18 @@
 				$this->modules[$this->database_module]->queryDatabase("DROP TABLE scms_accounts;");
 			}
 			
+			// Check to see if the files table exists and if so drop it
+			if ($this->modules[$this->database_module]->queryDatabase("DESC scms_files;")) {
+				$this->modules[$this->database_module]->queryDatabase("DROP TABLE scms_files;");	
+			}
+			
 			// Create the database tables
 			$this->modules[$this->database_module]->queryDatabase("CREATE TABLE scms_accounts (id BIGINT NOT NULL AUTO_INCREMENT, PRIMARY KEY(id), username VARCHAR(50) NOT NULL, UNIQUE (username), password VARCHAR(50) NOT NULL, email VARCHAR(100), firstname VARCHAR(50) NOT NULL, lastname VARCHAR(50), accesslevel INT NOT NULL, dateregistered DATETIME NOT NULL DEFAULT NOW(), accountstatus INT NOT NULL);");
 			$this->modules[$this->database_module]->queryDatabase("CREATE TABLE scms_categories (id BIGINT NOT NULL AUTO_INCREMENT, PRIMARY KEY(id), name VARCHAR(200) NOT NULL, UNIQUE (name));");
-			$this->modules[$this->database_module]->queryDatabase("CREATE TABLE scms_posts (id BIGINT NOT NULL AUTO_INCREMENT, PRIMARY KEY(id), title VARCHAR(200) NOT NULL, details TEXT NOT NULL, dateposted DATETIME NOT NULL DEFAULT NOW(), author BIGINT NOT NULL, FOREIGN KEY (author) REFERENCES scms_accounts(id), type INT NOT NULL, category BIGINT NOT NULL, FOREIGN KEY (category) REFERENCES scms_categories(id));");
+			$this->modules[$this->database_module]->queryDatabase("CREATE TABLE scms_posts (id BIGINT NOT NULL AUTO_INCREMENT, PRIMARY KEY(id), title VARCHAR(200) NOT NULL, details TEXT NOT NULL, filename TEXT NOT NULL, dateposted DATETIME NOT NULL DEFAULT NOW(), author BIGINT NOT NULL, FOREIGN KEY (author) REFERENCES scms_accounts(id), type INT NOT NULL, category BIGINT NOT NULL, FOREIGN KEY (category) REFERENCES scms_categories(id));");
 			$this->modules[$this->database_module]->queryDatabase("CREATE TABLE scms_comments (id BIGINT NOT NULL AUTO_INCREMENT, PRIMARY KEY(id), post BIGINT NOT NULL, FOREIGN KEY (post) REFERENCES scms_posts(id), dateposted DATETIME NOT NULL DEFAULT NOW(), author BIGINT NOT NULL, FOREIGN KEY (author) REFERENCES scms_accounts(id), comment TEXT NOT NULL);");
+			$this->modules[$this->database_module]->queryDatabase("CREATE TABLE scms_files (id BIGINT NOT NULL AUTO_INCREMENT, PRIMARY KEY(id), filename VARCHAR(200) NOT NULL, filedata MEDIUMBLOB NOT NULL, filetype VARCHAR(200) NOT NULL);");
+			
 		}
 		
 		/**
@@ -543,7 +598,7 @@
 			// Return the result
 			return $rvalue;
 		}
-	
+		
 		/**
 		 * Attempts to login a selected user into the application
 		 *
@@ -596,7 +651,7 @@
 			// Return the result
 			return $rvalue;
 		}
-	
+		
 		/**
 		 * Attempts to logout the current user from the application
 		 *
@@ -618,7 +673,7 @@
 			// Return the result
 			return $rvalue;
 		}
-	
+		
 		/**
 		 * Login the selected user to the application
 		 *
@@ -735,7 +790,7 @@
 			echo "setTimeout(\"location.href = '".$URL."';\",".$timer.");";
 			echo "</script>";
 		}
-	
+		
 		/**
 		 * Check the log in status for the current user
 		 *
@@ -755,7 +810,7 @@
 			// Return the result
 			return $rvalue;
 		}
-	
+		
 		/**
 		 * Adds a new user to the application
 		 *
@@ -768,7 +823,7 @@
 		 *
 		 */		
 		public function addUser($username, $password, $accesslevel, $firstname = 'Administrator', $lastname = '') {		
-				
+			
 			// Set the initial status
 			$rvalue = Engine::DATABASE_ERROR_COULD_NOT_ACCESS_DATABASE;
 			
@@ -789,7 +844,7 @@
 			// Return the result
 			return $rvalue;
 		}
-	
+		
 		/**
 		 * Check to see if a user with admin access exists
 		 *
@@ -907,7 +962,7 @@
 				
 				// Query the database to select the posts
 				$result = $this->modules[$this->database_module]->queryDatabase("SELECT * FROM scms_posts LIMIT ".$start.", ".$size.";");
-			
+				
 				// Check to see if there were results returned
 				if (count($result) > 0) {
 					
@@ -919,7 +974,8 @@
 					foreach ($result as $row) {
 						
 						// Get the first name for the author of the post
-						$authorresult = $this->modules[$this->database_module]->queryDatabase("SELECT firstname FROM scms_accounts WHERE id = ".$row[4].";");
+						$authorresult = $this->modules[$this->database_module]->queryDatabase("SELECT firstname FROM scms_accounts WHERE id = ".$row[5].";");
+
 						foreach ($authorresult as $item) {
 							$author = $item[0];	
 						}
@@ -934,20 +990,23 @@
 						}	
 						
 						// Check to see which feature is required for the post
-						if ($row[5] == Engine::FEATURE_SUPPORT_TEXT_POST) {
+						if ($row[6] == Engine::FEATURE_SUPPORT_TEXT_POST) {
 							$details = $this->modules[$this->textpost_module]->createPostPreview($row[2]);
+						} elseif ($row[6] == Engine::FEATURE_SUPPORT_IMAGE_POST) {
+							$details = $this->modules[$this->imagepost_module]->createPostPreview($row[2]);
 						}
 						
 						// Update the post details
-						$category = $this->getCategoryName($row[6]);
+						$category = $this->getCategoryName($row[7]);
 						$rvalue[$count] = array("id" => $row[0],
 							"title" => $row[1],
 							"details" => $details,
-							"dateposted" => strtotime($row[3]),
+							"dateposted" => strtotime($row[4]),
 							"author" => $author,
-							"type" => $row[5],
+							"type" => $row[6],
+							"filename" => $row[3],
 							"categoryname" => $category,
-							"categoryid" => $row[6],
+							"categoryid" => $row[7],
 							"comments" => $comments);
 						$count++;
 					}					
@@ -1145,10 +1204,15 @@
 				// Check to see which type of post has been submitted
 				switch ($data['type']) {
 					case Engine::FEATURE_SUPPORT_TEXT_POST:
-					
+						
 						// Submit the new text post
 						$rvalue = $this->modules[$this->textpost_module]->addPost($data);
 						break;
+					case Engine::FEATURE_SUPPORT_IMAGE_POST:
+						
+						// Submit the new image post
+						$rvalue = $this->modules[$this->imagepost_module]->addPost($data);
+						break;	
 					default:
 						$rvalue = Engine::POST_NO_TYPE_CONFIGURED;
 						break;
@@ -1179,7 +1243,7 @@
 				// Check to see which type of post has been submitted
 				switch ($data['type']) {
 					case Engine::FEATURE_SUPPORT_TEXT_POST:
-					
+						
 						// Edit the existing text post
 						$rvalue = $this->modules[$this->textpost_module]->editPost($data);
 						break;
@@ -1213,7 +1277,7 @@
 				// Check to see which type of post is to be deleted
 				switch ($data['type']) {
 					case Engine::FEATURE_SUPPORT_TEXT_POST:
-					
+						
 						// Delete the existing text post
 						$rvalue = $this->modules[$this->textpost_module]->deletePost($data);
 						break;
@@ -1307,9 +1371,14 @@
 			// Check to see which type of post is to be displayed
 			switch ($type) {
 				case Engine::FEATURE_SUPPORT_TEXT_POST:
-				
+					
 					// Display the text post
 					$rvalue = $this->modules[$this->textpost_module]->displayPost($data);
+					break;
+				case Engine::FEATURE_SUPPORT_IMAGE_POST:
+					
+					// Display the image post
+					$rvalue = $this->modules[$this->imagepost_module]->displayPost($data);
 					break;
 				default:
 					$rvalue = Engine::POST_NO_TYPE_CONFIGURED;
@@ -1364,7 +1433,53 @@
 			// Return the result
 			return $rvalue;	
 		}
-	
+		
+		/**
+		 * Submits a new file to the database
+		 *
+		 * @param $data The data for the file upload
+		 * @return Returns the result status code
+		 *
+		 */		
+		public function submitNewFileUpload($data) {
+			
+			// Set the initial status
+			$rvalue = Engine::NO_ERROR_STATUS;
+			
+			// Check to ensure that a file upload module is installed
+			if ($this->isModuleInstalled(Engine::FEATURE_SUPPORT_FILE_UPLOAD)) {
+
+				// Save the content of the selected file to the database
+				$rvalue = $this->modules[$this->fileupload_module]->addFile($data);	
+			}
+			
+			// Return the result
+			return $rvalue;	
+		}
+		
+		/**
+		 * Generates an image which has been stored in the database
+		 *
+		 * @param $data The data array containing the data for the image preview
+		 * @return Returns the result status code
+		 *
+		 */		
+		public function previewImage($data) {
+			
+			// Set the initial status
+			$rvalue = Engine::NO_ERROR_STATUS;
+			
+			// Check to ensure that a file upload module is installed
+			if ($this->isModuleInstalled(Engine::FEATURE_SUPPORT_FILE_UPLOAD)) {
+
+				// Read the content of the selected file from the database
+				$rvalue = $this->modules[$this->fileupload_module]->readFile($data);	
+			}
+			
+			// Return the result
+			return $rvalue;	
+		}
+		
 		/**
 		 * Loads the installed modules for the application
 		 *
@@ -1390,7 +1505,7 @@
 				}
 			}
 		}
-	
+		
 		/**
 		 * Attempts to initialize a selected module
 		 *
@@ -1403,7 +1518,7 @@
 			// Get the name of the module
 			$moduleName = str_replace(".module.php", "", $module);
 			$moduleClass = null;
-		
+			
 			// Attempt to load the module
 			include_once('./modules/'.$module);
 			

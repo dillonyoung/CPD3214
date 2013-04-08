@@ -74,6 +74,47 @@
 					}
 					
 					break;	
+					
+				case 'imagepost':
+				
+					if (empty($post['filename'])) {
+						$status = -1;
+					} else {
+						
+						// Get the user ID for the current user
+						$rvalue = $engine->getUserID();
+						
+						// Check to ensure no error has occurred
+						if ($rvalue != Engine::DATABASE_ERROR_NO_QUERY_RESULTS || $rvalue != Engine::DATABASE_ERROR_COULD_NOT_ACCESS_DATABASE) {
+							
+							// Build the post data
+							$postdata['type'] = Engine::FEATURE_SUPPORT_IMAGE_POST;
+							$postdata['title'] = $title;
+							$postdata['details'] = $body;
+							$postdata['author'] = $rvalue;
+							$postdata['category'] = $category;
+							$postdata['filename'] = $post['filename'];
+							$postdata['id'] = $id;
+							
+							// Check to see if the action is for a new post or an existing post
+							if ($mode == 1) {
+								$rvalue = $engine->submitNewPost($postdata);
+							} else if ($mode == 2) {
+								$rvalue = $engine->editExistingPost($postdata);
+							}
+							
+							// Check to see if an error occurred
+							if ($rvalue == Engine::DATABASE_ERROR_NO_ERROR) {
+								$status = 1;
+							} else {
+								$status = -2;
+							}
+						} else {
+							$status = -2;
+						}
+					}
+					
+					break;
 			}
 		}
 	}
