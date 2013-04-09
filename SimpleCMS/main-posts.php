@@ -7,3 +7,6 @@
 	 */	
 ?>
 <div id="mainpostlist"></div>
+<div id="buttonhold">
+<button id="btn_loadmoreposts" name="btn_loadmoreposts">Load More Posts</button>
+</div>

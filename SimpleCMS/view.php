@@ -28,6 +28,9 @@
 			echo "<div id=\"postcommenthead\"><h1>Comments</h1></div>";
 			echo "<div id=\"postcomments\"></div>";
 			echo "<div id=\"postnocomments\"><p>No one has yet commented on this post. Be the first to do so.</p></div>";
+			echo "<div id=\"buttonhold\">";
+			echo "<button id=\"btn_loadmorecomments\" name=\"btn_loadmorecomments\">Load More Comments</button>";
+			echo "</div>";
 			echo "<div id=\"postid\">".$_GET['post']."</div>";
 			
 			// Include the footer file

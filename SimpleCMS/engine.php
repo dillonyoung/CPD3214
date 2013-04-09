@@ -961,7 +961,7 @@
 			if ($this->isModuleInstalled(Engine::FEATURE_SUPPORT_DATABASE)) {
 				
 				// Query the database to select the posts
-				$result = $this->modules[$this->database_module]->queryDatabase("SELECT * FROM scms_posts LIMIT ".$start.", ".$size.";");
+				$result = $this->modules[$this->database_module]->queryDatabase("SELECT * FROM scms_posts ORDER BY dateposted DESC LIMIT ".$start.", ".$size.";");
 				
 				// Check to see if there were results returned
 				if (count($result) > 0) {
@@ -1035,7 +1035,7 @@
 			if ($this->isModuleInstalled(Engine::FEATURE_SUPPORT_DATABASE)) {
 				
 				// Query the database to select the comments for the selected post
-				$result = $this->modules[$this->database_module]->queryDatabase("SELECT * FROM scms_comments WHERE post = ".$data['id']." LIMIT ".$data['start'].", ".$data['size'].";");
+				$result = $this->modules[$this->database_module]->queryDatabase("SELECT * FROM scms_comments WHERE post = ".$data['id']." ORDER BY dateposted DESC LIMIT ".$data['start'].", ".$data['size'].";");
 				
 				// Check to see if there were results returned
 				if (count($result) > 0) {

@@ -6,6 +6,7 @@
 */
 
 var timeOut;
+var numberOfPostsToLoad = 5;
 
 // Check to see if the document is ready
 $(document).ready(function () {
@@ -16,6 +17,15 @@ $(document).ready(function () {
     // Prepare the footer of the posts
     preparePostFooter();
 
+    // Update the button styles
+    $('button').button();
+
+    // Register a click listener for the load more posts button
+    $('button#btn_loadmoreposts').click(function () {
+
+        // Load additional posts
+        loadMorePosts();
+    });
 });
 
 /**
@@ -30,7 +40,7 @@ function loadMainPostList() {
         // Build the request object
         var listData = new Object();
         listData.start = 0;
-        listData.size = 30;
+        listData.size = numberOfPostsToLoad;
 
         // Convert the object to json
         var query = JSON.stringify(listData);
@@ -88,7 +98,100 @@ function loadMainPostList() {
 
                             // Add the post to the screen
                             post = $(post);
-                            $(posthold).hide().prependTo('#mainpostlist').fadeIn(2000);
+                            $(posthold).hide().appendTo('#mainpostlist').fadeIn(2000);
+                            $(posthold).append(post);
+                        } else {
+
+                        }
+                    }
+
+                    // Update the date and time on the posts
+                    updateDateTime();
+
+                    // Set the timer to update the date time in the post footer if not set
+                    if (timeOut == null) {
+                        timeOut = setInterval(function () { updateDateTime() }, 1000);
+                    }
+                }
+            }
+        });
+    }
+}
+
+
+/**
+* Load additional posts and add them to the list
+*
+*/
+function loadMorePosts() {
+
+    // Check to ensure the main posts should be displayed
+    if ($('#mainpostlist').length > 0) {
+
+        // Build the request object
+        var listData = new Object();
+        listData.start = $('#mainpostlist').children().size();
+        listData.size = numberOfPostsToLoad;
+
+        // Convert the object to json
+        var query = JSON.stringify(listData);
+
+        // Request the list of posts
+        $.ajax({
+            type: "POST",
+            url: "listposts.php",
+            dataType: "json",
+            data: { json: query },
+            success: function (data) {
+
+                // Get the response data
+                var response = data;
+
+                // Check to see the response status
+                if (response.status == 0 || response.status == -1) {
+
+                    // No additional posts
+                    displayMessage("No more posts are currently available", 3);
+                } else {
+
+                    // Get the posts
+                    var posts = response.posts;
+
+                    // Loop through the posts
+                    for (var i = 0; i < posts.length; i++) {
+
+                        // Setup the initial post details
+                        var element = 'post' + posts[i].id;
+                        var posthold = $('<div id="' + element + '" class="post"><div>');
+
+                        // Check to ensure that the post does not already exist
+                        if ($('#' + element).length == 0) {
+
+                            var post = '';
+
+                            // Check to see if the post type a text post
+                            if (posts[i].type == 4) {
+                                post += '<h2><a href="./view.php?post=' + posts[i].id + '">' + posts[i].title + '</a></h2><p>' + posts[i].details.replace(/[\r\n]/g, "<br />") + '</p>';
+                                post += '<span class="footer">Written by ' + posts[i].author + '&nbsp;</span>&nbsp;<span class="formatteddate">0 seconds</span><span>&nbsp;ago</span>';
+                                post += '<span class="footer">&nbsp;and filed under ' + posts[i].categoryname + '</span>';
+                                post += '<span class="comments">' + posts[i].comments + '</span>';
+                            } else if (posts[i].type == 8) {
+                                post += '<h2><a href="./view.php?post=' + posts[i].id + '">' + posts[i].title + '</a></h2><img src="./previewimage.php?f=' + posts[i].filename + '" class="image" /><p>' + posts[i].details.replace(/[\r\n]/g, "<br />") + '</p>';
+                                post += '<span class="footer">Written by ' + posts[i].author + '&nbsp;</span>&nbsp;<span class="formatteddate">0 seconds</span><span>&nbsp;ago</span>';
+                                post += '<span class="footer">&nbsp;and filed under ' + posts[i].categoryname + '</span>';
+                                post += '<span class="comments">' + posts[i].comments + '</span>';
+                            }
+                            post += '<div class="postid">' + posts[i].id + '</div>';
+                            post += '<div class="posttype">' + posts[i].type + '</div>';
+                            post += '<div class="postdate">' + posts[i].dateposted + '</div>';
+                            post += '<div class="clear"></div>';
+
+                            // Format the date
+                            formatDate(posts[i].dateposted);
+
+                            // Add the post to the screen
+                            post = $(post);
+                            $(posthold).hide().appendTo('#mainpostlist').fadeIn(2000);
                             $(posthold).append(post);
                         } else {
 

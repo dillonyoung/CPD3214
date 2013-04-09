@@ -5,6 +5,8 @@
 * 
 */
 
+var numberOfCommentsToLoad = 5;
+
 // Check to see if the document is ready
 $(document).ready(function () {
 
@@ -22,6 +24,13 @@ $(document).ready(function () {
 
         // Post a comment
         postComment();
+    });
+
+    // Register a click listener for the load more comments button
+    $('button#btn_loadmorecomments').click(function () {
+
+        // Load additional comments
+        loadMoreComments();
     });
 });
 
@@ -119,7 +128,7 @@ function loadPostComments() {
     var postData = new Object();
     postData.id = $('#postid').text();
     postData.start = 0;
-    postData.size = 30;
+    postData.size = numberOfCommentsToLoad;
 
     // Convert the object to json
     var query = JSON.stringify(postData);
@@ -161,7 +170,7 @@ function loadPostComments() {
                 for (var i = 0; i < comments.length; i++) {
 
                     // Setup the initial comment details
-                    var element = 'comment' + i;
+                    var element = 'comment' + comments[i].id;
                     var commenthold = $('<div id="' + element + '" class="comment"><div>');
 
                     // Check to ensure the comment does not already exist
@@ -182,7 +191,127 @@ function loadPostComments() {
                         comment = $(comment);
 
                         // Add the comment to the screen
-                        $(commenthold).hide().prependTo('#postcomments').fadeIn(2000);
+                        $(commenthold).hide().appendTo('#postcomments').fadeIn(2000);
+                        $(commenthold).append(comment);
+
+                        // Check to see if the current user is an admin
+                        if (response.admin) {
+
+                            // Register a mouse enter listener for the comment
+                            $('#' + element).on('mouseenter', function () {
+
+                                // Update the display
+                                $(this).clearQueue();
+                                $(this).animate({
+                                    backgroundColor: '#dddddd'
+                                }, 1000);
+                                $(this).children('.delete').fadeIn(1000);
+                            });
+
+                            // Register a mouse leave listener for the comment
+                            $(commenthold).on('mouseleave', function () {
+
+                                // Update the display
+                                $(this).animate({
+                                    backgroundColor: '#ffffff'
+                                }, 1000);
+                                $(this).children('.delete').fadeOut(500);
+                            });
+
+                            // Register a click listener for the delete button on the comment
+                            $(commenthold).children('.delete').on('click', function () {
+
+                                // Delete the comment
+                                deleteComment($(this).parent());
+                            });
+                        }
+                    }
+                }
+            }
+
+            // Check to see if the current user is not logged in and hide the input form
+            if (response.userid == 0) {
+                $('#postnewcomment').hide();
+                $('#nouserloggedin').fadeIn(1000);
+            } else {
+
+            }
+        }
+    });
+}
+
+/**
+* Loads additional comments for the selected post
+*
+*/
+function loadMoreComments() {
+
+    // Build a post request object
+    var postData = new Object();
+    postData.id = $('#postid').text();
+    postData.start = $('#postcomments').children().size();
+    postData.size = numberOfCommentsToLoad;
+
+    // Convert the object to json
+    var query = JSON.stringify(postData);
+
+    // Attempt to load the comments for the current post
+    $.ajax({
+        type: "POST",
+        url: "viewcomments.php",
+        dataType: "json",
+        data: { json: query },
+        success: function (data) {
+
+            // Get the response data
+            var response = data;
+
+            // Check to see the response status
+            if (response.status == 0 || response.status == -1) {
+
+                // Display an error message to the user
+                displayMessage("There was an error loading the comments", 2);
+            } else if (response.status == -2) {
+
+                // No additional comments
+                displayMessage("No more comments are currently available", 3);
+            } else if (response.status == 1) {
+
+                // Show the comments
+                $('#postnocomments').hide();
+                $('#nouserloggedin').fadeOut(500);
+                $('#postnewcomment').fadeIn(1000);
+                $('#postcomments').fadeIn(1000);
+
+                // Get the list of comments
+                var comments = response.comments;
+
+                // Loop through the comments
+                for (var i = 0; i < comments.length; i++) {
+
+                    // Setup the initial comment details
+                    var element = 'comment' + comments[i].id;
+                    var commenthold = $('<div id="' + element + '" class="comment"><div>');
+
+                    // Check to ensure the comment does not already exist
+                    if ($('#' + element).length == 0) {
+
+                        // Build the comment
+                        var comment = '';
+                        comment += '<img src="./images/user.png" />';
+                        comment += '<p>' + comments[i].details.replace(/[\r\n]/g, "<br />") + '</p>';
+                        comment += '<div class="space"></div>';
+                        comment += '<span class="footer">Written by ' + comments[i].author + '&nbsp;</span>&nbsp;<span class="formatteddate">0 seconds</span><span>&nbsp;ago</span>';
+                        comment += '<div class="postid">' + comments[i].id + '</div>';
+                        comment += '<div class="postdate">' + comments[i].dateposted + '</div>';
+                        if (response.admin) {
+                            comment += '<div class="delete" title="Delete Comment"></div>';
+                        }
+                        comment += '<div class="clear"></div>';
+                        comment = $(comment);
+
+                        // Add the comment to the screen
+                        $(commenthold).hide().appendTo('#postcomments').fadeIn(2000);
                         $(commenthold).append(comment);
 
                         // Check to see if the current user is an admin

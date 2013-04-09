@@ -449,3 +449,8 @@ span.comments
     display: none;
     cursor: pointer;
 }
+
+#buttonhold
+{
+    text-align: center;
+}
