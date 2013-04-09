@@ -1086,7 +1086,7 @@
 			if ($this->isModuleInstalled(Engine::FEATURE_SUPPORT_DATABASE)) {
 				
 				// Query the database to select the users
-				$result = $this->modules[$this->database_module]->queryDatabase("SELECT * FROM scms_accounts LIMIT ".$start.", ".$size.";");
+				$result = $this->modules[$this->database_module]->queryDatabase("SELECT * FROM scms_accounts ORDER BY username LIMIT ".$start.", ".$size.";");
 				
 				// Check to see if there were results returned
 				if (count($result) > 0) {

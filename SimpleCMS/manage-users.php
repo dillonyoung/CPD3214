@@ -9,6 +9,9 @@
 <h1>Users</h1>
 <p>Use the below options to manage the current users.</p>
 <div id="userlist"></div>
-<div id="dialog-confirm" title="Empty the recycle bin?">
-  <p>These items will be permanently deleted and cannot be recovered. Are you sure?</p>
+<div id="buttonhold">
+<button id="btn_manage_loadmoreusers" name="btn_manage_loadmoreusers">Load More Users</button>
+</div>
+<div id="dialog-confirm" title="">
+  <p></p>
 </div>

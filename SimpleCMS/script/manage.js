@@ -7,255 +7,263 @@
 
 var selectedPost = null;
 var timeOut;
-var numberOfPostsToLoad = 2;
+var numberOfPostsToLoad = 5;
+var numberOfUsersToLoad = 1;
 
 // Check to see if the document is ready
 $(document).ready(function () {
 
-	// Load the post list
-	loadPostList();
+    // Load the post list
+    loadPostList();
 
-	// Load the user list
-	loadUserList();
+    // Load the user list
+    loadUserList();
 
-	// Update the button styles
-	$('button').button();
+    // Update the button styles
+    $('button').button();
 
-	// Register a click listener for the load more posts button
-	$('button#btn_manage_loadmoreposts').click(function () {
+    // Register a click listener for the load more posts button
+    $('button#btn_manage_loadmoreposts').click(function () {
 
-		// Load more posts
-		loadPostList();
-	});
+        // Load more posts
+        loadPostList();
+    });
 
-	// Register a click listener for the new post button
-	$('button#btn_manage_newpost').click(function () {
+    // Register a click listener for the load more users button
+    $('button#btn_manage_loadmoreusers').click(function () {
 
-		// Show the new post form
-		$('#newposttype').fadeIn(500);
-		$(this).attr('disabled', 'disabled');
-	});
+        // Load more users
+        loadUserList();
+    });
 
-	// Register a change listener for the post type combo box
-	$('select#cbo_posttype_select').change(function () {
+    // Register a click listener for the new post button
+    $('button#btn_manage_newpost').click(function () {
 
-		// Hide the text post entry
-		$('#newtextpostentry').fadeOut(500);
+        // Show the new post form
+        $('#newposttype').fadeIn(500);
+        $(this).attr('disabled', 'disabled');
+    });
 
-		// Hide the image post entry
-		$('#newimagepostentry').fadeOut(500);
+    // Register a change listener for the post type combo box
+    $('select#cbo_posttype_select').change(function () {
 
-		// Determine which post type should be displayed
-		switch ($(this).val()) {
-			case "textpost":
-				$('#newtextpostentry').fadeIn(500);
-				break;
-			case 'imagepost':
-				$('#newimagepostentry').fadeIn(500);
-				break;
-			default:
-				break;
-		}
-	});
+        // Hide the text post entry
+        $('#newtextpostentry').fadeOut(500);
 
-	// Register a click listener for the cancel new text post button
-	$('button#btn_manage_cancel_newtextpost').click(function () {
+        // Hide the image post entry
+        $('#newimagepostentry').fadeOut(500);
 
-		// Update the screen
-		$('#newtextpostentry').fadeOut(500);
-		$('#newposttype').fadeOut(500);
-		$('button#btn_manage_newpost').removeAttr('disabled');
-		$('#txt_newtextpost_title').val('');
-		$('#txt_newtextpost_body').val('');
-		$('select#cbo_posttype_select').val('');
-		$('select#cbo_newtextpost_category').val('');
-	});
+        // Determine which post type should be displayed
+        switch ($(this).val()) {
+            case "textpost":
+                $('#newtextpostentry').fadeIn(500);
+                break;
+            case 'imagepost':
+                $('#newimagepostentry').fadeIn(500);
+                break;
+            default:
+                break;
+        }
+    });
 
-	// Register a click listener for the submit new text post button
-	$('button#btn_manage_submit_newtextpost').click(function () {
+    // Register a click listener for the cancel new text post button
+    $('button#btn_manage_cancel_newtextpost').click(function () {
 
-		// Create a new request object
-		var postData = new Object();
-		postData.title = $('#txt_newtextpost_title').val();
-		postData.body = $('#txt_newtextpost_body').val();
-		postData.category = $('#cbo_newtextpost_category').val();
-		postData.type = 'textpost';
-		postData.mode = 1;
-		postData.id = 0;
+        // Update the screen
+        $('#newtextpostentry').fadeOut(500);
+        $('#newposttype').fadeOut(500);
+        $('button#btn_manage_newpost').removeAttr('disabled');
+        $('#txt_newtextpost_title').val('');
+        $('#txt_newtextpost_body').val('');
+        $('select#cbo_posttype_select').val('');
+        $('select#cbo_newtextpost_category').val('');
+    });
 
-		// Convert the object to json
-		var query = JSON.stringify(postData);
+    // Register a click listener for the submit new text post button
+    $('button#btn_manage_submit_newtextpost').click(function () {
 
-		// Attempt to submit the new post
-		$.ajax({
-			type: "POST",
-			url: "post.php",
-			dataType: "json",
-			data: { json: query },
-			success: function (data) {
+        // Create a new request object
+        var postData = new Object();
+        postData.title = $('#txt_newtextpost_title').val();
+        postData.body = $('#txt_newtextpost_body').val();
+        postData.category = $('#cbo_newtextpost_category').val();
+        postData.type = 'textpost';
+        postData.mode = 1;
+        postData.id = 0;
 
-				// Get the reponse data
-				var response = data;
+        // Convert the object to json
+        var query = JSON.stringify(postData);
 
-				// Check to see the response data
-				if (response.status == 0) {
+        // Attempt to submit the new post
+        $.ajax({
+            type: "POST",
+            url: "post.php",
+            dataType: "json",
+            data: { json: query },
+            success: function (data) {
 
-					// Display an error message to the user
-					displayMessage("There was an error in the post", 2);
-				} else if (response.status == -1) {
+                // Get the reponse data
+                var response = data;
 
-					// Display an error message to the user
-					displayMessage("One or more fields are blank", 2);
-				} else if (response.status == -2) {
+                // Check to see the response data
+                if (response.status == 0) {
 
-					// Display an error message to the user
-					displayMessage("There was an error submitting your post, please try again", 2);
-				} else if (response.status == 1) {
+                    // Display an error message to the user
+                    displayMessage("There was an error in the post", 2);
+                } else if (response.status == -1) {
 
-					// Update the screen display
-					$('#newtextpostentry').fadeOut(500);
-					$('#newposttype').fadeOut(500);
-					$('button#btn_manage_newpost').removeAttr('disabled');
+                    // Display an error message to the user
+                    displayMessage("One or more fields are blank", 2);
+                } else if (response.status == -2) {
 
-					// Display a sucess message to the user
-					displayMessage("Your new post has been successfully posted", 1);
+                    // Display an error message to the user
+                    displayMessage("There was an error submitting your post, please try again", 2);
+                } else if (response.status == 1) {
 
-					// Reset the entry form
-					$('#txt_newtextpost_title').val('');
-					$('#txt_newtextpost_body').val('');
-					$('select#cbo_posttype_select').val('');
+                    // Update the screen display
+                    $('#newtextpostentry').fadeOut(500);
+                    $('#newposttype').fadeOut(500);
+                    $('button#btn_manage_newpost').removeAttr('disabled');
 
-					// Load the post list
-					loadPostList(0);
-				}
-			}
-		});
-	});
+                    // Display a sucess message to the user
+                    displayMessage("Your new post has been successfully posted", 1);
+
+                    // Reset the entry form
+                    $('#txt_newtextpost_title').val('');
+                    $('#txt_newtextpost_body').val('');
+                    $('select#cbo_posttype_select').val('');
+
+                    // Load the post list
+                    loadPostList(0);
+                }
+            }
+        });
+    });
 
 
-	// Register a change listener for the new image file button
-	$('#txt_newimagepost_file').change(function () {
+    // Register a change listener for the new image file button
+    $('#txt_newimagepost_file').change(function () {
 
-		// Based on http://stackoverflow.com/questions/2320069/jquery-ajax-file-upload
-		var file = document.getElementById('txt_newimagepost_file');
-		var filedetails = file.files[0];
+        // Based on http://stackoverflow.com/questions/2320069/jquery-ajax-file-upload
+        var file = document.getElementById('txt_newimagepost_file');
+        var filedetails = file.files[0];
 
-		// Check to see if the file is of a supported file type
-		if (filedetails.type != 'image/png' && filedetails.type != 'image/jpg' && !filedetails.type != 'image/gif' && filedetails.type != 'image/jpeg') {
-			displayMessage("The selected file type is unsupport", 2);
-			$(this).val('');
-			return;
-		}
+        // Check to see if the file is of a supported file type
+        if (filedetails.type != 'image/png' && filedetails.type != 'image/jpg' && !filedetails.type != 'image/gif' && filedetails.type != 'image/jpeg') {
+            displayMessage("The selected file type is unsupport", 2);
+            $(this).val('');
+            return;
+        }
 
-		// Check to see if the size of the file is valid
-		if (filedetails.size > 10000000) {
-			displayMessage("The selected file is to large", 2);
-			$(this).val('');
-			return;
-		}
+        // Check to see if the size of the file is valid
+        if (filedetails.size > 10000000) {
+            displayMessage("The selected file is to large", 2);
+            $(this).val('');
+            return;
+        }
 
-		// Attempt to upload the image
-		var xhr = new XMLHttpRequest();
-		xhr.onreadystatechange = function () {
-			if (xhr.readyState == 4 && xhr.status == 200) {
+        // Attempt to upload the image
+        var xhr = new XMLHttpRequest();
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState == 4 && xhr.status == 200) {
 
-				// Check the response status
-				var response = $.parseJSON(xhr.responseText);
-				if (response.status == 0) {
-					displayMessage('The image has been successfully uploaded', 1);
-					$('#txt_newimagepost_filename').val(response.filename);
-				} else {
-					displayMessage('There was an error uploading the image', 2);
-					$('#txt_newimagepost_filename').val('');
-				}
-			}
-		}
-		xhr.open('POST', 'fileupload.php', true);
-		xhr.setRequestHeader("X-File-Name", filedetails.name);
-		xhr.setRequestHeader("X-File-Type", filedetails.type);
-		xhr.setRequestHeader("Content-Type", "application/octet-stream");
-		xhr.send(filedetails);
-	});
+                // Check the response status
+                var response = $.parseJSON(xhr.responseText);
+                if (response.status == 0) {
+                    displayMessage('The image has been successfully uploaded', 1);
+                    $('#txt_newimagepost_filename').val(response.filename);
+                } else {
+                    displayMessage('There was an error uploading the image', 2);
+                    $('#txt_newimagepost_filename').val('');
+                }
+            }
+        }
+        xhr.open('POST', 'fileupload.php', true);
+        xhr.setRequestHeader("X-File-Name", filedetails.name);
+        xhr.setRequestHeader("X-File-Type", filedetails.type);
+        xhr.setRequestHeader("Content-Type", "application/octet-stream");
+        xhr.send(filedetails);
+    });
 
-	// Register a click listener for the cancel new image post button
-	$('button#btn_manage_cancel_newimagepost').click(function () {
+    // Register a click listener for the cancel new image post button
+    $('button#btn_manage_cancel_newimagepost').click(function () {
 
-		// Update the screen
-		$('#newimagepostentry').fadeOut(500);
-		$('#newposttype').fadeOut(500);
-		$('button#btn_manage_newpost').removeAttr('disabled');
-		$('#txt_newimagepost_title').val('');
-		$('#txt_newimagepost_body').val('');
-		$('select#cbo_posttype_select').val('');
-		$('#txt_newimagepost_file').val('');
-		$('txt_newimagepost_filename').val('');
-		$('select#cbo_newimagepost_category').val('');
-	});
+        // Update the screen
+        $('#newimagepostentry').fadeOut(500);
+        $('#newposttype').fadeOut(500);
+        $('button#btn_manage_newpost').removeAttr('disabled');
+        $('#txt_newimagepost_title').val('');
+        $('#txt_newimagepost_body').val('');
+        $('select#cbo_posttype_select').val('');
+        $('#txt_newimagepost_file').val('');
+        $('txt_newimagepost_filename').val('');
+        $('select#cbo_newimagepost_category').val('');
+    });
 
-	// Register a click listener for the submit new image post button
-	$('button#btn_manage_submit_newimagepost').click(function () {
+    // Register a click listener for the submit new image post button
+    $('button#btn_manage_submit_newimagepost').click(function () {
 
-		// Create a new request object
-		var postData = new Object();
-		postData.title = $('#txt_newimagepost_title').val();
-		postData.body = $('#txt_newimagepost_body').val();
-		postData.filename = $('#txt_newimagepost_filename').val();
-		postData.category = $('#cbo_newimagepost_category').val();
-		postData.type = 'imagepost';
-		postData.mode = 1;
-		postData.id = 0;
+        // Create a new request object
+        var postData = new Object();
+        postData.title = $('#txt_newimagepost_title').val();
+        postData.body = $('#txt_newimagepost_body').val();
+        postData.filename = $('#txt_newimagepost_filename').val();
+        postData.category = $('#cbo_newimagepost_category').val();
+        postData.type = 'imagepost';
+        postData.mode = 1;
+        postData.id = 0;
 
-		// Convert the object to json
-		var query = JSON.stringify(postData);
+        // Convert the object to json
+        var query = JSON.stringify(postData);
 
-		// Attempt to submit the new post
-		$.ajax({
-			type: "POST",
-			url: "post.php",
-			dataType: "json",
-			data: { json: query },
-			success: function (data) {
+        // Attempt to submit the new post
+        $.ajax({
+            type: "POST",
+            url: "post.php",
+            dataType: "json",
+            data: { json: query },
+            success: function (data) {
 
-				// Get the reponse data
-				var response = data;
+                // Get the reponse data
+                var response = data;
 
-				// Check to see the response data
-				if (response.status == 0) {
+                // Check to see the response data
+                if (response.status == 0) {
 
-					// Display an error message to the user
-					displayMessage("There was an error in the post", 2);
-				} else if (response.status == -1) {
+                    // Display an error message to the user
+                    displayMessage("There was an error in the post", 2);
+                } else if (response.status == -1) {
 
-					// Display an error message to the user
-					displayMessage("One or more fields are blank", 2);
-				} else if (response.status == -2) {
+                    // Display an error message to the user
+                    displayMessage("One or more fields are blank", 2);
+                } else if (response.status == -2) {
 
-					// Display an error message to the user
-					displayMessage("There was an error submitting your post, please try again", 2);
-				} else if (response.status == 1) {
+                    // Display an error message to the user
+                    displayMessage("There was an error submitting your post, please try again", 2);
+                } else if (response.status == 1) {
 
-					// Update the screen display
-					$('#newimagepostentry').fadeOut(500);
-					$('#newposttype').fadeOut(500);
-					$('button#btn_manage_newpost').removeAttr('disabled');
+                    // Update the screen display
+                    $('#newimagepostentry').fadeOut(500);
+                    $('#newposttype').fadeOut(500);
+                    $('button#btn_manage_newpost').removeAttr('disabled');
 
-					// Display a sucess message to the user
-					displayMessage("Your new post has been successfully posted", 1);
+                    // Display a sucess message to the user
+                    displayMessage("Your new post has been successfully posted", 1);
 
-					// Reset the entry form
-					$('#txt_newimagepost_title').val('');
-					$('#txt_newimagepost_body').val('');
-					$('select#cbo_posttype_select').val('');
-					$('#txt_newimagepost_file').val('');
-					$('txt_newimagepost_filename').val('');
-					$('select#cbo_newimagepost_category').val('');
+                    // Reset the entry form
+                    $('#txt_newimagepost_title').val('');
+                    $('#txt_newimagepost_body').val('');
+                    $('select#cbo_posttype_select').val('');
+                    $('#txt_newimagepost_file').val('');
+                    $('txt_newimagepost_filename').val('');
+                    $('select#cbo_newimagepost_category').val('');
 
-					// Load the post list
-					loadPostList(0);
-				}
-			}
-		});
-	});
+                    // Load the post list
+                    loadPostList(0);
+                }
+            }
+        });
+    });
 });
 
 /**
@@ -343,14 +351,14 @@ function loadPostList(position) {
 							// Check to see if the element is null and the new element should be added to the bottom
 							if (insertPosition == null) {
 
-							    // Add the post to the screen
-							    $(posthold).hide().appendTo('#postlist').fadeIn(2000);
-							    $(posthold).append(post);
+								// Add the post to the screen
+								$(posthold).hide().appendTo('#postlist').fadeIn(2000);
+								$(posthold).append(post);
 							} else {
 
-							    // Add the post to the screen in the correct position
-							    $(insertPosition).before($(posthold));
-							    $(posthold).append(post);
+								// Add the post to the screen in the correct position
+								$(insertPosition).before($(posthold));
+								$(posthold).append(post);
 							}
 
 							// Register a mouse enter listener for the post
@@ -432,8 +440,8 @@ function loadUserList() {
 
 		// Build the request object
 		var listData = new Object();
-		listData.start = 0;
-		listData.size = 30;
+		listData.start = $('#userlist').children().size();
+		listData.size = numberOfUsersToLoad;
 
 		// Convert the object to json
 		var query = JSON.stringify(listData);
@@ -461,7 +469,7 @@ function loadUserList() {
 					for (var i = 0; i < users.length; i++) {
 
 						// Setup the initial user details
-						var element = 'user' + i;
+						var element = 'user' + users[i].id;
 						var userhold = $('<div id="' + element + '" class="user"><div>');
 
 						// Check to ensure the user is not already exist
@@ -484,7 +492,7 @@ function loadUserList() {
 
 							// Add the user to the screen
 							user = $(user);
-							$(userhold).hide().prependTo('#userlist').fadeIn(2000);
+							$(userhold).hide().appendTo('#userlist').fadeIn(2000);
 							$(userhold).append(user);
 
 							// Register a mouse enter listener for the user
