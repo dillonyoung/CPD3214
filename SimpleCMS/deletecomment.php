@@ -1,7 +1,7 @@
 <?php
 	/**
-	 * Description: Deletes a selected post from the system
-	 * Filename...: deletepost.php
+	 * Description: Deletes a selected comment from the system
+	 * Filename...: deletecomment.php
 	 * Author.....: Dillon Young (C0005790)
 	 * 
 	 */	
@@ -23,18 +23,18 @@
 			
 			// Get the data from the json object
 			$json = $_POST['json'];
-			$post = json_decode($json, true);
+			$comment = json_decode($json, true);
 			
-			// Check to ensure that a post id has been set
-			if (isset($post['id'])) {
+			// Check to ensure that a comment id has been set
+			if (isset($comment['id'])) {
 				
-				// Build the post details array
-				$postdata = array();
-				$postdata['type'] = $post['type'];
-				$postdata['id'] = $post['id'];
+				// Build the comment details array
+				$commentdata = array();
+				$commentdata['type'] = $comment['type'];
+				$commentdata['id'] = $comment['id'];
 				
-				// Delete the post from the system
-				$rvalue = $engine->deleteExistingPost($postdata);
+				// Delete the comment from the system
+				$rvalue = $engine->deleteExistingComment($commentdata);
 				
 				// Check the status of the delete
 				if ($rvalue == Engine::DATABASE_ERROR_NO_ERROR) {

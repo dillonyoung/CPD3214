@@ -175,12 +175,47 @@ function loadPostComments() {
                         comment += '<span class="footer">Written by ' + comments[i].author + '&nbsp;</span>&nbsp;<span class="formatteddate">0 seconds</span><span>&nbsp;ago</span>';
                         comment += '<div class="postid">' + comments[i].id + '</div>';
                         comment += '<div class="postdate">' + comments[i].dateposted + '</div>';
+                        if (response.admin) {
+                            comment += '<div class="delete" title="Delete Comment"></div>';
+                        }
                         comment += '<div class="clear"></div>';
                         comment = $(comment);
 
                         // Add the comment to the screen
                         $(commenthold).hide().prependTo('#postcomments').fadeIn(2000);
                         $(commenthold).append(comment);
+
+                        // Check to see if the current user is an admin
+                        if (response.admin) {
+
+                            // Register a mouse enter listener for the comment
+                            $('#' + element).on('mouseenter', function () {
+
+                                // Update the display
+                                $(this).clearQueue();
+                                $(this).animate({
+                                    backgroundColor: '#dddddd'
+                                }, 1000);
+                                $(this).children('.delete').fadeIn(1000);
+                            });
+
+                            // Register a mouse leave listener for the comment
+                            $(commenthold).on('mouseleave', function () {
+
+                                // Update the display
+                                $(this).animate({
+                                    backgroundColor: '#ffffff'
+                                }, 1000);
+                                $(this).children('.delete').fadeOut(500);
+                            });
+
+                            // Register a click listener for the delete button on the comment
+                            $(commenthold).children('.delete').on('click', function () {
+
+                                // Delete the comment
+                                deleteComment($(this).parent());
+                            });
+                        }
                     }
                 }
             }
@@ -216,4 +251,48 @@ function updateDateTime() {
         $(this).children('.formatteddate').html(n);
 
     });
+}
+
+
+/**
+* Delete the selected comment
+*
+* @param comment The reference to the select comment
+*
+*/
+function deleteComment(comment) {
+
+    // Create the comment object
+    var commentData = new Object();
+    commentData.id = $(comment).children('.postid').html();
+    commentData.type = 1;
+
+    // Convert the object to json
+    var query = JSON.stringify(commentData);
+
+    // Attempt to delete the selected post
+    $.ajax({
+        type: "POST",
+        url: "deletecomment.php",
+        dataType: "json",
+        data: { json: query },
+        success: function (data) {
+
+            // Get the response data
+            var response = data;
+
+            // Check to see the response status
+            if (response.status == 0 || response.status == -1) {
+
+                // Display an error message to the user
+                displayMessage("There was an error deleting the select comment, please try again", 2);
+            } else {
+
+                // Display a success message to the user
+                displayMessage("The selected comment has been successfully deleted", 1);
+                $(comment).fadeOut(1000);
+            }
+        }
+    });
+
 }

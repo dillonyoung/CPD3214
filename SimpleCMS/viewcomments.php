@@ -51,7 +51,8 @@
 	// Build the result json object
 	$json_data = array('status' => $status,
 		'comments' => $comments,
-		'userid' => $userid
+		'userid' => $userid,
+		'admin' => $engine->isUserAdmin()
 		);
 	$json_encoded = json_encode($json_data, JSON_NUMERIC_CHECK);
 	

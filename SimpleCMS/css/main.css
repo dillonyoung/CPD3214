@@ -432,3 +432,20 @@ span.comments
     float: left;
     margin-left: 42px;
 }
+
+.comment 
+{
+    position: relative;
+}
+
+.comment > .delete
+{
+    position: absolute;
+    top: 0px;
+    right: 0px;
+    width: 24px;
+    height: 24px;
+    background-image: url("../images/delete.png");
+    display: none;
+    cursor: pointer;
+}

@@ -3,6 +3,7 @@
 	 * Description: A file upload processing module
 	 * Filename...: FileUpload.module.php
 	 * Author.....: Dillon Young (C0005790)
+	 * Based on...: http://stackoverflow.com/questions/2320069/jquery-ajax-file-upload
 	 * 
 	 */	
 	class FileUpload {

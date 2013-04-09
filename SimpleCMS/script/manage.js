@@ -128,6 +128,7 @@ $(document).ready(function () {
 	// Register a change listener for the new image file button
 	$('#txt_newimagepost_file').change(function () {
 
+	    // Based on http://stackoverflow.com/questions/2320069/jquery-ajax-file-upload
 		var file = document.getElementById('txt_newimagepost_file');
 		var filedetails = file.files[0];
 

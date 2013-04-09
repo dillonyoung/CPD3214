@@ -1298,6 +1298,39 @@
 			return $rvalue;
 		}
 		
+		
+		/**
+		 * Deletes an existing comment
+		 *
+		 * @param $data An array containing the comment details
+		 * @return Returns the results status code
+		 *
+		 */		
+		public function deleteExistingComment($data) {
+			
+			// Set the initial status code
+			$rvalue = Engine::NO_ERROR_STATUS;
+			
+			// Check to see if the type is set
+			if (isset($data['type'])) {
+				
+				// Delete the selected comment
+				$result = $this->modules[$this->database_module]->queryDatabase("DELETE FROM scms_comments WHERE id = ".$data['id'].";");
+				
+				// Check on the success of the delete
+				if (count($result) > 0) {
+					$rvalue = Engine::DATABASE_ERROR_NO_ERROR;
+				} else {
+					$rvalue = Engine::DATABASE_ERROR_NO_QUERY_RESULTS;
+				}
+			} else {
+				$rvalue = Engine::POST_NO_TYPE_CONFIGURED;	
+			}
+			
+			// Return the results
+			return $rvalue;
+		}
+		
 		/**
 		 * Check to see if a post exists in the application
 		 *
