@@ -171,6 +171,7 @@
 			if (isset($data['type']) && $data['type'] == $this->MODULE_FEATURE) {
 				
 				// Attempt to delete the selected post from the database
+				$result = $this->database_module->queryDatabase("DELETE FROM scms_comments WHERE post = ".$data['id'].";");
 				$result = $this->database_module->queryDatabase("DELETE FROM scms_posts WHERE id = ".$data['id'].";");
 				
 				// Check on the success of the delete

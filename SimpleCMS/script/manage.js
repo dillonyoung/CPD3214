@@ -666,15 +666,32 @@ function editPost(post) {
 	// Check to see if the post type is text post
 	if (postData.type == 4) {
 
-		// Update the screen
-		$(post).children('h2').hide();
-		$(post).children('p').hide();
-		$(post).children('#txt_title').val($(post).children('h2').html());
-		$(post).children('#txt_body').val($(post).children('p').html().replace(/<br>/g, "\r\n"));
-		$(post).children('#txt_title').fadeIn(1000);
-		$(post).children('#txt_body').fadeIn(1000);
-		$(post).children('.buttons').fadeIn(1000);
-		$('button').button();
+	    // Update the screen
+	    $(post).children('h2').hide();
+	    $(post).children('p').hide();
+	    $(post).children('#txt_title').val($(post).children('h2').html());
+	    $(post).children('#txt_body').val($(post).children('p').html().replace(/<br>/g, "\r\n"));
+	    $(post).children('#txt_title').fadeIn(1000);
+	    $(post).children('#txt_body').fadeIn(1000);
+	    $(post).children('.buttons').fadeIn(1000);
+	    $('button').button();
+	} else if (postData.type == 8) {
+
+	    // Display a message dialog prompting the user to confirm they want to delete the selected post
+	    $('#dialog-confirm').attr('title', 'Edit Post');
+	    $('#dialog-confirm').html("This action is not currently supported for image posts.");
+	    $("#dialog-confirm").dialog({
+	        resizable: false,
+	        width: 400,
+	        height: 140,
+	        modal: true,
+	        buttons: {
+	            "OK": function () {
+
+	                $(this).dialog("close");
+	            }
+	        }
+	    });
 	}
 }
 

@@ -11,6 +11,9 @@
 	
 	// Include the engine class
 	include_once('engine.php');
+	
+	// Create a new instance of the engine class
+	$engine = new Engine;
 
 	// Check to ensure that the application is configured
 	if ($engine->isConfigured()) {

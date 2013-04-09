@@ -1281,6 +1281,11 @@
 						// Delete the existing text post
 						$rvalue = $this->modules[$this->textpost_module]->deletePost($data);
 						break;
+					case Engine::FEATURE_SUPPORT_IMAGE_POST:
+
+						// Delete the existing image post
+						$rvalue = $this->modules[$this->imagepost_module]->deletePost($data);
+						break;
 					default:
 						$rvalue = Engine::POST_NO_TYPE_CONFIGURED;
 						break;

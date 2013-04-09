@@ -124,11 +124,11 @@ function showLogoutDialog(result) {
 
     // Build the logout form
     var loginform;
-    loginform = result.username + '&nbsp;&nbsp;';
+    loginform = '<a href=\"#\" id=\"logout\">Logout</a>';
     if (result.level == 3) {
         loginform += '<a href=\"manage.php\">Manage</a>&nbsp;&nbsp;';
     }
-    loginform += '<a href=\"#\" id=\"logout\">Logout</a>';
+    loginform += '<span>' + result.username + '</span>';
 
     // Add the logout form to the page
     $('#login_area').html(loginform);

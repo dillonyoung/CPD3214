@@ -11,7 +11,7 @@
 		private $MODULE_VERSION = "1.13.0403";
 		private $MODULE_NAME = "FileUpload";
 		private $MODULE_AUTHOR = "Dillon Young";
-		private $MODULE_DESCRIPTION = "A wrapper module for a file upload";
+		private $MODULE_DESCRIPTION = "A wrapper module for file uploads storing the files in the database";
 		private $MODULE_FEATURE = 32;
 		
 		// Declare module variables

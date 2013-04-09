@@ -1,16 +1,25 @@
+/**
+ * Description: Manage CSS file
+ * Filename...: manage.css
+ * Author.....: Dillon Young (C0005790)
+ * 
+ */	
+ 
 nav#left
 {
     background-color: Red;
     width: 20%;
     padding: 0px;
     float: left;
+    font-family: Arial;
 }
 
 nav#left ul 
 {
-    background-color: rgb(125, 186, 240);
+    background-color: rgb(200, 200, 200);
     line-height: 40px;
     list-style-type: none;
+    width: 100%;
 }
 
 nav#left ul li:hover 
@@ -22,6 +31,9 @@ nav#left ul li a
 {
     color: White;
     text-decoration: none;
+    width: 100%;
+    display: block;
+    padding-left: 10px;
 }
 
 nav#top 

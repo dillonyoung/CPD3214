@@ -1,14 +1,22 @@
+/**
+ * Description: Main CSS file
+ * Filename...: main.css
+ * Author.....: Dillon Young (C0005790)
+ * 
+ */	
+ 
 * 
 {
     outline: 0px solid red;
     padding: 0px;
     margin: 0px;
+    font-family: Arial;
 }
 
 a:link, a:visited, a:active
 {
     text-decoration: none;
-    color: Blue;
+    color: rgb(83, 142, 213);
     font-weight: 900;
     font-family: Arial;
 }
@@ -79,6 +87,7 @@ header, footer, section
 header 
 {
     height: 80px;
+    padding-bottom: 20px;
 }
 
 header > * 
@@ -89,11 +98,13 @@ header > *
 header > h1 
 {
     cursor: pointer;
+    padding-bottom: 0px;
 }
 
 header > h4 
 {
     color: Gray;
+    padding-top: 0px;
 }
 
 header > h1, header > h4 
@@ -102,15 +113,41 @@ header > h1, header > h4
     clear: left;
 }
 
-header > #login_area
+header > #login_area > #login_form 
 {
     float: right;
+    display: none;
+    width: 300px;
+}
+
+header > #login_area > #login_form > p 
+{
+    display: block;
+    float: right;
+    text-align: right;
+    width: 300px;
+    margin: 0px;
+    padding: 0px;
+}
+
+header > #login_area > #login_form > p > input 
+{
+    margin-bottom: 4px;
+}
+
+header > #login_area > span
+{
+    float: right;
+    padding-left: 10px;
+    font-size: 12pt;
 }
 
 header > #login_area > a 
 {
-    float: left;
+    float: right;
     padding-left: 10px;
+    font-size: 12pt;
+    font-weight: normal;
 }
 
 header > #login_area > input 
@@ -220,6 +257,7 @@ section .window_body
 footer 
 {
     height: 40px;
+    padding-top: 60px;
 }
 
 footer > p 
@@ -261,9 +299,19 @@ span
     padding: 0px;
 }
 
+#postdetail > h1, .post > h2
+{
+    padding-bottom: 10px;
+}
+
+#postdetail > p, .comment > p
+{
+    padding-bottom: 0px;
+}
+
 .post > span, #postdetail > span, .user > span, .comment > span
 {
-    font-size: 12px;
+    font-size: 10px;
     float: left;
     color: Gray;
 }
@@ -315,4 +363,72 @@ span.comments
 {
     display: block;
     width: 800px;
+    padding-bottom: 10px;
+}
+
+#postnewcomment > textarea 
+{
+    float: left;
+    width: 740px;
+    height: 60px;
+    resize: none;
+    padding: 5px;
+    font-family: Arial;
+    display: block;
+}
+
+#postnewcomment > button 
+{
+    float: right;
+    display: block;
+}
+
+#postcommenthead 
+{
+    margin-top: 80px;
+}
+
+#nouserloggedin 
+{
+    margin-top: 10px;
+}
+
+#postnocomments 
+{
+    display: none;
+}
+
+.comment 
+{
+    padding-bottom: 10px;
+}
+
+.comment > img 
+{
+    float: left;
+    padding-right: 10px;
+}
+
+.comment > p 
+{
+    float: left;
+    display: block;
+}
+
+#postnewcomment 
+{
+    padding-bottom: 20px;
+    display: block;
+}
+
+.comment > .space 
+{
+    clear: both;
+}
+
+.comment > span:first-of-type
+{
+    clear: none;
+    float: left;
+    margin-left: 42px;
 }

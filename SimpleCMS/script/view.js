@@ -143,13 +143,13 @@ function loadPostComments() {
             } else if (response.status == -2) {
 
                 // Display a message stating no has commented yet
-                $('#postcomments').html('<p>No one has yet commented on this post. Be the first to do so.</p>');
-                $('#postcomments').fadeIn(1000);
+                $('#postnocomments').fadeIn(1000);
                 $('#nouserloggedin').fadeOut(500);
                 $('#postnewcomment').fadeIn(1000);
             } else if (response.status == 1) {
 
                 // Show the comments
+                $('#postnocomments').hide();
                 $('#nouserloggedin').fadeOut(500);
                 $('#postnewcomment').fadeIn(1000);
                 $('#postcomments').fadeIn(1000);
@@ -169,7 +169,9 @@ function loadPostComments() {
 
                         // Build the comment
                         var comment = '';
+                        comment += '<img src="./images/user.png" />';
                         comment += '<p>' + comments[i].details.replace(/[\r\n]/g, "<br />") + '</p>';
+                        comment += '<div class="space"></div>';
                         comment += '<span class="footer">Written by ' + comments[i].author + '&nbsp;</span>&nbsp;<span class="formatteddate">0 seconds</span><span>&nbsp;ago</span>';
                         comment += '<div class="postid">' + comments[i].id + '</div>';
                         comment += '<div class="postdate">' + comments[i].dateposted + '</div>';
@@ -185,8 +187,8 @@ function loadPostComments() {
 
             // Check to see if the current user is not logged in and hide the input form
             if (response.userid == 0) {
+                $('#postnewcomment').hide();
                 $('#nouserloggedin').fadeIn(1000);
-                $('#postnewcomment').fadeOut(500);
             } else {
 
             }

@@ -7,7 +7,7 @@
 	 */
 ?>
 <h1>About</h1>
-<p>Simple CMS has been created by Dillon Young for the CPD-3214 term project.</p>
+<p>Simple CMS has been created by Dillon Young for the CPD-3214 (PHP Programming/MySQL Database) course term project.</p>
 <p>Below is a list of the installed modules.</p>
 <?php
 	
