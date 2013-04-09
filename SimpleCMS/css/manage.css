@@ -193,3 +193,8 @@ span.buttons
     display: block;
     width: 600px;
 }
+
+#buttonhold
+{
+    text-align: center;
+}

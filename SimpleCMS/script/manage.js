@@ -7,6 +7,7 @@
 
 var selectedPost = null;
 var timeOut;
+var numberOfPostsToLoad = 2;
 
 // Check to see if the document is ready
 $(document).ready(function () {
@@ -19,6 +20,13 @@ $(document).ready(function () {
 
 	// Update the button styles
 	$('button').button();
+
+	// Register a click listener for the load more posts button
+	$('button#btn_manage_loadmoreposts').click(function () {
+
+		// Load more posts
+		loadPostList();
+	});
 
 	// Register a click listener for the new post button
 	$('button#btn_manage_newpost').click(function () {
@@ -118,7 +126,7 @@ $(document).ready(function () {
 					$('select#cbo_posttype_select').val('');
 
 					// Load the post list
-					loadPostList();
+					loadPostList(0);
 				}
 			}
 		});
@@ -128,7 +136,7 @@ $(document).ready(function () {
 	// Register a change listener for the new image file button
 	$('#txt_newimagepost_file').change(function () {
 
-	    // Based on http://stackoverflow.com/questions/2320069/jquery-ajax-file-upload
+		// Based on http://stackoverflow.com/questions/2320069/jquery-ajax-file-upload
 		var file = document.getElementById('txt_newimagepost_file');
 		var filedetails = file.files[0];
 
@@ -243,7 +251,7 @@ $(document).ready(function () {
 					$('select#cbo_newimagepost_category').val('');
 
 					// Load the post list
-					loadPostList();
+					loadPostList(0);
 				}
 			}
 		});
@@ -254,15 +262,22 @@ $(document).ready(function () {
  * Load the post list
  *
  */
-function loadPostList() {
+function loadPostList(position) {
 
 	// Check to ensure that the post list should be displayed
 	if ($('#postlist').length > 0) {
 
+	    // Check to see if the position is the start or the end
+	    if (position == 0) {
+	        position = 0;
+	    } else {
+	        position = $('#postlist').children().size();
+	    }
+
 		// Build the request object
-		var listData = new Object();
-		listData.start = 0;
-		listData.size = 30;
+	    var listData = new Object();
+		listData.start = position;
+		listData.size = numberOfPostsToLoad;
 
 		// Convert the object to json
 		var query = JSON.stringify(listData);
@@ -281,6 +296,8 @@ function loadPostList() {
 				// Check to see the response status
 				if (response.status == 0 || response.status == -1) {
 
+				    // No additional posts
+				    displayMessage("No more posts are currently available", 3);
 				} else {
 
 					// Get the posts data
@@ -290,7 +307,7 @@ function loadPostList() {
 					for (var i = 0; i < posts.length; i++) {
 
 						// Setup the initial post details
-						var element = 'post' + i;
+						var element = 'post' + posts[i].id;
 						var posthold = $('<div id="' + element + '" class="post"><div>');
 
 						// Check to ensure the post is not already visible
@@ -320,7 +337,7 @@ function loadPostList() {
 
 							// Add the post to the screen
 							post = $(post);
-							$(posthold).hide().prependTo('#postlist').fadeIn(2000);
+							$(posthold).hide().appendTo('#postlist').fadeIn(2000);
 							$(posthold).append(post);
 
 							// Register a mouse enter listener for the post
@@ -667,32 +684,32 @@ function editPost(post) {
 	// Check to see if the post type is text post
 	if (postData.type == 4) {
 
-	    // Update the screen
-	    $(post).children('h2').hide();
-	    $(post).children('p').hide();
-	    $(post).children('#txt_title').val($(post).children('h2').html());
-	    $(post).children('#txt_body').val($(post).children('p').html().replace(/<br>/g, "\r\n"));
-	    $(post).children('#txt_title').fadeIn(1000);
-	    $(post).children('#txt_body').fadeIn(1000);
-	    $(post).children('.buttons').fadeIn(1000);
-	    $('button').button();
+		// Update the screen
+		$(post).children('h2').hide();
+		$(post).children('p').hide();
+		$(post).children('#txt_title').val($(post).children('h2').html());
+		$(post).children('#txt_body').val($(post).children('p').html().replace(/<br>/g, "\r\n"));
+		$(post).children('#txt_title').fadeIn(1000);
+		$(post).children('#txt_body').fadeIn(1000);
+		$(post).children('.buttons').fadeIn(1000);
+		$('button').button();
 	} else if (postData.type == 8) {
 
-	    // Display a message dialog prompting the user to confirm they want to delete the selected post
-	    $('#dialog-confirm').attr('title', 'Edit Post');
-	    $('#dialog-confirm').html("This action is not currently supported for image posts.");
-	    $("#dialog-confirm").dialog({
-	        resizable: false,
-	        width: 400,
-	        height: 140,
-	        modal: true,
-	        buttons: {
-	            "OK": function () {
+		// Display a message dialog prompting the user to confirm they want to delete the selected post
+		$('#dialog-confirm').attr('title', 'Edit Post');
+		$('#dialog-confirm').html("This action is not currently supported for image posts.");
+		$("#dialog-confirm").dialog({
+			resizable: false,
+			width: 400,
+			height: 140,
+			modal: true,
+			buttons: {
+				"OK": function () {
 
-	                $(this).dialog("close");
-	            }
-	        }
-	    });
+					$(this).dialog("close");
+				}
+			}
+		});
 	}
 }
 

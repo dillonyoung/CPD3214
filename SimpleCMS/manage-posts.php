@@ -17,7 +17,6 @@
 <option value="">Select Post Type</option>
 <option value="textpost">Text Post</option>
 <option value="imagepost">Image Post</option>
-<option value="youtubepost">Youtube Post</option>
 </select>
 </div>
 <div id="newtextpostentry">
@@ -84,6 +83,9 @@
 </div>
 
 <div id="postlist"></div>
-<div id="dialog-confirm" title="Empty the recycle bin?">
-  <p>These items will be permanently deleted and cannot be recovered. Are you sure?</p>
+<div id="buttonhold">
+<button id="btn_manage_loadmoreposts" name="btn_manage_loadmoreposts">Load More Posts</button>
+</div>
+<div id="dialog-confirm" title="">
+  <p></p>
 </div>

@@ -454,3 +454,9 @@ span.comments
 {
     text-align: center;
 }
+
+button#btn_autorefresh 
+{
+    float: right;
+    top: -26px;
+}
