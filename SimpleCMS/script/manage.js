@@ -267,15 +267,15 @@ function loadPostList(position) {
 	// Check to ensure that the post list should be displayed
 	if ($('#postlist').length > 0) {
 
-	    // Check to see if the position is the start or the end
-	    if (position == 0) {
-	        position = 0;
-	    } else {
-	        position = $('#postlist').children().size();
-	    }
+		// Check to see if the position is the start or the end
+		if (position == 0) {
+			position = 0;
+		} else {
+			position = $('#postlist').children().size();
+		}
 
 		// Build the request object
-	    var listData = new Object();
+		var listData = new Object();
 		listData.start = position;
 		listData.size = numberOfPostsToLoad;
 
@@ -296,8 +296,8 @@ function loadPostList(position) {
 				// Check to see the response status
 				if (response.status == 0 || response.status == -1) {
 
-				    // No additional posts
-				    displayMessage("No more posts are currently available", 3);
+					// No additional posts
+					displayMessage("No more posts are currently available", 3);
 				} else {
 
 					// Get the posts data
@@ -335,10 +335,23 @@ function loadPostList(position) {
 							post += '<div class="delete" title="Delete Post"></div>';
 							post += '<div class="clear"></div>';
 
-							// Add the post to the screen
 							post = $(post);
-							$(posthold).hide().appendTo('#postlist').fadeIn(2000);
-							$(posthold).append(post);
+
+							// Determine the position to add the element
+							var insertPosition = determinePostInsertPosition(posts[i].dateposted);
+
+							// Check to see if the element is null and the new element should be added to the bottom
+							if (insertPosition == null) {
+
+							    // Add the post to the screen
+							    $(posthold).hide().appendTo('#postlist').fadeIn(2000);
+							    $(posthold).append(post);
+							} else {
+
+							    // Add the post to the screen in the correct position
+							    $(insertPosition).before($(posthold));
+							    $(posthold).append(post);
+							}
 
 							// Register a mouse enter listener for the post
 							$('#' + element).on('mouseenter', function () {
@@ -542,6 +555,32 @@ function loadUserList() {
 }
 
 /**
+* Determines the position in the list of posts to insert the new post
+*
+* @param date The date for the new new post
+* @return Returns the element to insert before or null if the new post should go at the bottom of the list
+*
+*/
+function determinePostInsertPosition(date) {
+
+	// Declare variable
+	var insertBeforeElement = null;
+
+	// Loop through the current posts to determine if the new post should go before any of them
+	$('#postlist').children().each(function () {
+		var commentdate = $(this).children('.postdate').html();
+
+		// Check to see if the date of the new comment is after the current comment
+		if (date > commentdate && insertBeforeElement == null) {
+			insertBeforeElement = $(this);
+		}
+	});
+
+	// Return the value
+	return insertBeforeElement;
+}
+
+/**
 * Update the date time display
 *
 */
@@ -586,6 +625,7 @@ function updateEditPost(post) {
 	var postData = new Object();
 	postData.title = $(post).children('#txt_title').val();
 	postData.body = $(post).children('#txt_body').val();
+	postData.category = $(post).children('.postcategoryid').html();
 	postData.type = 'textpost';
 	postData.mode = 2
 	postData.id = $(post).children('.postid').html();
