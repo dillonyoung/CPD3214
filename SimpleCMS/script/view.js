@@ -5,7 +5,10 @@
 * 
 */
 
+var timeOut;
 var numberOfCommentsToLoad = 5;
+var refreshTime;
+var autoRefresh = false;
 
 // Check to see if the document is ready
 $(document).ready(function () {
@@ -30,8 +33,18 @@ $(document).ready(function () {
     $('button#btn_loadmorecomments').click(function () {
 
         // Load additional comments
-        loadMoreComments();
+        loadPostComments();
     });
+
+    // Register a click listener for the auto refresh button
+    $('button#btn_autorefresh').click(function () {
+
+        // Toggle the auto refresh
+        toggleAutoRefresh();
+    });
+
+    // Start the auto refresh
+    toggleAutoRefresh();
 });
 
 /**
@@ -72,7 +85,7 @@ function postComment() {
                 $('#txt_comment').val('');
 
                 // Load the comments
-                loadPostComments();
+                loadPostComments(0);
             }
         }
     });
@@ -112,7 +125,7 @@ function loadPostDetails() {
                 // Display the post details to the user
                 $('#postdetail').html(response.postdata).fadeIn(1000);
                 updateDateTime();
-                var timeout = setInterval(function () { updateDateTime() }, 1000);
+                timeout = setInterval(function () { updateDateTime() }, 1000);
             }
         }
     });
@@ -122,12 +135,19 @@ function loadPostDetails() {
  * Load the comments for the current post
  *
  */
-function loadPostComments() {
+function loadPostComments(position) {
+
+    // Check to see if the position is the start or the end
+    if (position == 0) {
+        position = 0;
+    } else {
+        position = $('#postcomments').children().size();
+    }
 
     // Build a post request object
     var postData = new Object();
     postData.id = $('#postid').text();
-    postData.start = 0;
+    postData.start = position;
     postData.size = numberOfCommentsToLoad;
 
     // Convert the object to json
@@ -151,10 +171,18 @@ function loadPostComments() {
                 displayMessage("There was an error loading the comments", 2);
             } else if (response.status == -2) {
 
-                // Display a message stating no has commented yet
-                $('#postnocomments').fadeIn(1000);
-                $('#nouserloggedin').fadeOut(500);
-                $('#postnewcomment').fadeIn(1000);
+                // Check to see if there are comments already in the list
+                if ($('#postcomments').children().size() == 0) {
+
+                    // Display a message stating no has commented yet
+                    $('#postnocomments').fadeIn(1000);
+                    $('#nouserloggedin').fadeOut(500);
+                    $('#postnewcomment').fadeIn(1000);
+                } else {
+
+                    // No additional comments
+                    displayMessage("No more comments are currently available", 3);
+                }
             } else if (response.status == 1) {
 
                 // Show the comments
@@ -179,20 +207,38 @@ function loadPostComments() {
                         // Build the comment
                         var comment = '';
                         comment += '<img src="./images/user.png" />';
-                        comment += '<p>' + comments[i].details.replace(/[\r\n]/g, "<br />") + '</p>';
+                        if (!isNaN(comments[i].details)) {
+                            comment += '<p>' + comments[i].details + '</p>';
+                        } else {
+                            comment += '<p>' + comments[i].details.replace(/[\r\n]/g, "<br />") + '</p>';
+                        }
                         comment += '<div class="space"></div>';
                         comment += '<span class="footer">Written by ' + comments[i].author + '&nbsp;</span>&nbsp;<span class="formatteddate">0 seconds</span><span>&nbsp;ago</span>';
                         comment += '<div class="postid">' + comments[i].id + '</div>';
                         comment += '<div class="postdate">' + comments[i].dateposted + '</div>';
+
+                        // Check to see if the user is an admin
                         if (response.admin) {
                             comment += '<div class="delete" title="Delete Comment"></div>';
                         }
                         comment += '<div class="clear"></div>';
                         comment = $(comment);
 
-                        // Add the comment to the screen
-                        $(commenthold).hide().appendTo('#postcomments').fadeIn(2000);
-                        $(commenthold).append(comment);
+                        // Determine the position to add the element
+                        var insertPosition = determineCommentInsertPosition(comments[i].dateposted);
+
+                        // Check to see if the element is null and the new element should be added to the bottom
+                        if (insertPosition == null) {
+
+                            // Add the comment to the screen
+                            $(commenthold).hide().appendTo('#postcomments').fadeIn(2000);
+                            $(commenthold).append(comment);
+                        } else {
+
+                            // Add the comment to the screen in the correct position
+                            $(insertPosition).before($(commenthold));
+                            $(commenthold).append(comment);
+                        }
 
                         // Check to see if the current user is an admin
                         if (response.admin) {
@@ -241,129 +287,35 @@ function loadPostComments() {
 }
 
 /**
-* Loads additional comments for the selected post
-*
-*/
-function loadMoreComments() {
-
-    // Build a post request object
-    var postData = new Object();
-    postData.id = $('#postid').text();
-    postData.start = $('#postcomments').children().size();
-    postData.size = numberOfCommentsToLoad;
-
-    // Convert the object to json
-    var query = JSON.stringify(postData);
-
-    // Attempt to load the comments for the current post
-    $.ajax({
-        type: "POST",
-        url: "viewcomments.php",
-        dataType: "json",
-        data: { json: query },
-        success: function (data) {
-
-            // Get the response data
-            var response = data;
-
-            // Check to see the response status
-            if (response.status == 0 || response.status == -1) {
-
-                // Display an error message to the user
-                displayMessage("There was an error loading the comments", 2);
-            } else if (response.status == -2) {
-
-                // No additional comments
-                displayMessage("No more comments are currently available", 3);
-            } else if (response.status == 1) {
-
-                // Show the comments
-                $('#postnocomments').hide();
-                $('#nouserloggedin').fadeOut(500);
-                $('#postnewcomment').fadeIn(1000);
-                $('#postcomments').fadeIn(1000);
-
-                // Get the list of comments
-                var comments = response.comments;
-
-                // Loop through the comments
-                for (var i = 0; i < comments.length; i++) {
-
-                    // Setup the initial comment details
-                    var element = 'comment' + comments[i].id;
-                    var commenthold = $('<div id="' + element + '" class="comment"><div>');
-
-                    // Check to ensure the comment does not already exist
-                    if ($('#' + element).length == 0) {
-
-                        // Build the comment
-                        var comment = '';
-                        comment += '<img src="./images/user.png" />';
-                        comment += '<p>' + comments[i].details.replace(/[\r\n]/g, "<br />") + '</p>';
-                        comment += '<div class="space"></div>';
-                        comment += '<span class="footer">Written by ' + comments[i].author + '&nbsp;</span>&nbsp;<span class="formatteddate">0 seconds</span><span>&nbsp;ago</span>';
-                        comment += '<div class="postid">' + comments[i].id + '</div>';
-                        comment += '<div class="postdate">' + comments[i].dateposted + '</div>';
-                        if (response.admin) {
-                            comment += '<div class="delete" title="Delete Comment"></div>';
-                        }
-                        comment += '<div class="clear"></div>';
-                        comment = $(comment);
-
-                        // Add the comment to the screen
-                        $(commenthold).hide().appendTo('#postcomments').fadeIn(2000);
-                        $(commenthold).append(comment);
-
-                        // Check to see if the current user is an admin
-                        if (response.admin) {
-
-                            // Register a mouse enter listener for the comment
-                            $('#' + element).on('mouseenter', function () {
-
-                                // Update the display
-                                $(this).clearQueue();
-                                $(this).animate({
-                                    backgroundColor: '#dddddd'
-                                }, 1000);
-                                $(this).children('.delete').fadeIn(1000);
-                            });
-
-                            // Register a mouse leave listener for the comment
-                            $(commenthold).on('mouseleave', function () {
-
-                                // Update the display
-                                $(this).animate({
-                                    backgroundColor: '#ffffff'
-                                }, 1000);
-                                $(this).children('.delete').fadeOut(500);
-                            });
-
-                            // Register a click listener for the delete button on the comment
-                            $(commenthold).children('.delete').on('click', function () {
-
-                                // Delete the comment
-                                deleteComment($(this).parent());
-                            });
-                        }
-                    }
-                }
-            }
-
-            // Check to see if the current user is not logged in and hide the input form
-            if (response.userid == 0) {
-                $('#postnewcomment').hide();
-                $('#nouserloggedin').fadeIn(1000);
-            } else {
-
-            }
-        }
-    });
-}
-
-/**
- * Update the date time for the post and comments
+ * Determines the position in the list of comments to insert the new comment
+ *
+ * @param date The date for the new new comment
+ * @return Returns the element to insert before or null if the new comment should go at the bottom of the list
  *
  */
+function determineCommentInsertPosition(date) {
+
+    // Declare variable
+    var insertBeforeElement = null;
+
+    // Loop through the current comments to determine if the new comment should go before any of them
+    $('#postcomments').children().each(function () {
+        var commentdate = $(this).children('.postdate').html();
+
+        // Check to see if the date of the new comment is after the current comment
+        if (date > commentdate && insertBeforeElement == null) {
+            insertBeforeElement = $(this);
+        }
+    });
+
+    // Return the value
+    return insertBeforeElement;
+}
+
+/**
+* Update the date time for the post and comments
+*
+*/
 function updateDateTime() {
 
     // Update the date time for the post
@@ -424,4 +376,29 @@ function deleteComment(comment) {
         }
     });
 
+}
+
+/**
+ * Toggles the auto refreshing of comments on and off
+ *
+ */
+function toggleAutoRefresh() {
+
+    // Check to see if auto refresh is enabled
+    if (autoRefresh) {
+
+        // Turn off the auto refresh
+        autoRefresh = false;
+        clearInterval(refreshTime);
+        $('button#btn_autorefresh span').text('Turn Auto Refresh On');
+    } else {
+
+        // Turn on the auto refresh
+        autoRefresh = true;
+        refreshTime = setInterval(function () { loadPostComments(0) }, 10000);
+        $('button#btn_autorefresh span').text('Turn Auto Refresh Off');
+    }
+
+    // Update the styles on the buttons
+    $('button').button();
 }
