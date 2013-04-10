@@ -59,7 +59,7 @@ article#manage > h1
     margin-bottom: 20px;
 }
 
-#newtextpostentry input[type="text"], #newimagepostentry input[type="text"], #newimagepostentry input[type="file"]
+#newtextpostentry input[type="text"], #newimagepostentry input[type="text"], #newimagepostentry input[type="file"], #txt_manage_sitetitle, #txt_manage_sitedesc
 {
     width: 400px;
     padding: 5px;

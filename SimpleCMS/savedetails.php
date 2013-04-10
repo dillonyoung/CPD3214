@@ -21,20 +21,31 @@
 		// Get the data from the json object
 		$json = $_POST['json'];
 		$data = json_decode($json, true);
-
-		// Get the site details
-		$rvalue = $engine->saveDetails($data);
-
-		// Check to see if there were any errors
-		if ($rvalue == Engine::DATABASE_ERROR_COULD_NOT_ACCESS_DATABASE) {
-			$status = -1;	
-			$details = "";
-		} else if ($rvalue == Engine::DATABASE_ERROR_NO_QUERY_RESULTS) {
-			$status = -2;
-			$details = "";
+		
+		// Check to ensure that the title field and the description field are not blank is not blank
+		if (empty($data['title']) || empty($data['description'])) {
+			$status = -1;
 		} else {
-			$status = 1;
-			$details = $rvalue;
+			
+			// Create the data array
+			$sitedata = array();
+			$sitedata['title'] = htmlentities(addslashes($data['title']));
+			$sitedata['description'] = htmlentities(addslashes($data['description']));
+
+			// Get the site details
+			$rvalue = $engine->saveDetails($sitedata);
+
+			// Check to see if there were any errors
+			if ($rvalue == Engine::DATABASE_ERROR_COULD_NOT_ACCESS_DATABASE) {
+				$status = -1;	
+				$details = "";
+			} else if ($rvalue == Engine::DATABASE_ERROR_NO_QUERY_RESULTS) {
+				$status = -2;
+				$details = "";
+			} else {
+				$status = 1;
+				$details = $rvalue;
+			}
 		}
 	}
 	
