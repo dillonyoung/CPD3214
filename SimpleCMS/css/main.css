@@ -460,3 +460,9 @@ button#btn_autorefresh
     float: right;
     top: -26px;
 }
+
+button#btn_register_newcaptcha 
+{
+    margin-top: -20px;
+    margin-left: 10px;
+}

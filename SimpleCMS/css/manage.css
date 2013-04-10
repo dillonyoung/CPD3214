@@ -198,3 +198,13 @@ span.buttons
 {
     text-align: center;
 }
+
+button#btn_manage_submit_newtextpost, button#btn_manage_cancel_newtextpost, button#btn_manage_submit_newimagepost, button#btn_manage_cancel_newimagepost
+{
+    margin-top: 10px;
+}
+
+label 
+{
+    vertical-align: top;
+}
