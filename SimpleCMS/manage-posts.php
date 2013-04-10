@@ -7,7 +7,7 @@
 	 */	
 ?>
 <h1>Posts</h1>
-<p>Use the below options to manage posts.</p>
+<p>Use the below form to add a new post the site. If you would like to delete an existing post move your mouse over the post and click on the delete icon (<img src="./images/delete.png">). If you would like to edit an existing post move your mouse over the post and click on the edit icon (<img src="./images/edit.png">).</p>
 <nav id="top">
 <button id="btn_manage_newpost">New Post</button>
 </nav>

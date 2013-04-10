@@ -7,4 +7,6 @@
 	 */	
 ?>
 <h1>Home</h1>
-<p>Welcome to the management console for the Simple CMS. From this page you can make new posts, modify current posts or delete a post.</p>
+<p>Welcome to the management console for the Simple CMS. From this page you can create, modify, or delete posts.</p>
+<p>This management console also allows you to manage user account access by locking or unlocking accounts.</p>
+<p>Each section of the management console has more information.</p>

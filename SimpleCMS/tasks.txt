@@ -1,8 +1,0 @@
-- add remaining database tables
-- add code for the management console
-- add more commenting to the code
-
-
-- fix the add new post to update the display with the new post
-
-- finish new image post adding, editing, deleting, viewing

@@ -24,6 +24,9 @@
 	// Determine which page should be loaded depending on the section
 	$pagefile = "";
 	switch ($section) {
+		case 'site':
+			$pagefile = "manage-site.php";
+			break;
 		case 'posts':
 			$pagefile = "manage-posts.php";
 			break;
@@ -46,6 +49,7 @@
 			<nav id="left">
 			<ul>
 			<li><a href="./manage.php">Home</a></li>
+			<li><a href="./manage.php?sec=site">Site</a></li>
 			<li><a href="./manage.php?sec=posts">Posts</a></li>
 			<li><a href="./manage.php?sec=users">Users</a></li>
 			<li><a href="./manage.php?sec=about">About</a></li>

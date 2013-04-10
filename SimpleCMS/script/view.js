@@ -185,10 +185,22 @@ function loadPostComments(position) {
                 }
             } else if (response.status == 1) {
 
+
+                // Check to see if the current user is not logged in and hide the input form
+                if (response.userid == 0) {
+
+                    $('#postnewcomment').hide();
+                    $('#nouserloggedin').show();
+                } else {
+
+                    $('#postnewcomment').show();
+                    $('#nouserloggedin').hide();
+                }
+
                 // Show the comments
                 $('#postnocomments').hide();
-                $('#nouserloggedin').fadeOut(500);
-                $('#postnewcomment').fadeIn(1000);
+                //$('#nouserloggedin').fadeOut(500);
+                //$('#postnewcomment').fadeIn(1000);
                 $('#postcomments').fadeIn(1000);
 
                 // Get the list of comments
@@ -273,14 +285,6 @@ function loadPostComments(position) {
                         }
                     }
                 }
-            }
-
-            // Check to see if the current user is not logged in and hide the input form
-            if (response.userid == 0) {
-                $('#postnewcomment').hide();
-                $('#nouserloggedin').fadeIn(1000);
-            } else {
-
             }
         }
     });

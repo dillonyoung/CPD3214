@@ -3,6 +3,7 @@
 	 * Description: A captcha generator and processing module
 	 * Filename...: Captcha.module.php
 	 * Author.....: Dillon Young (C0005790)
+	 * Based on...: http://webcheatsheet.com/PHP/create_captcha_protection.php
 	 * 
 	 */	
 	class Captcha {

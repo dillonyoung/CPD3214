@@ -1,14 +1,10 @@
 <?php
 	/**
-	 * Description: Gets the current login status for a user
+	 * Description: Uploads a file to the server
 	 * Filename...: fileupload.php
 	 * Author.....: Dillon Young (C0005790)
 	 * 
 	 */	
-
-			// Turn on error reporting
-			ini_set('display_errors', 1); 
-			error_reporting(E_ALL);
 
 	// Set the initial values
 	$status = 0;

@@ -302,13 +302,21 @@
 				$this->modules[$this->database_module]->queryDatabase("DROP TABLE scms_files;");	
 			}
 			
+			// Check to see if the site details table exists and if so drop it
+			if ($this->modules[$this->database_module]->queryDatabase("DESC scms_site;")) {
+				$this->modules[$this->database_module]->queryDatabase("DROP TABLE scms_site;");	
+			}
+			
 			// Create the database tables
+			$this->modules[$this->database_module]->queryDatabase("CREATE TABLE scms_site (sitetitle TEXT NOT NULL, sitedesc TEXT NOT NULL);");
 			$this->modules[$this->database_module]->queryDatabase("CREATE TABLE scms_accounts (id BIGINT NOT NULL AUTO_INCREMENT, PRIMARY KEY(id), username VARCHAR(50) NOT NULL, UNIQUE (username), password VARCHAR(50) NOT NULL, email VARCHAR(100), firstname VARCHAR(50) NOT NULL, lastname VARCHAR(50), accesslevel INT NOT NULL, dateregistered DATETIME NOT NULL DEFAULT NOW(), accountstatus INT NOT NULL);");
 			$this->modules[$this->database_module]->queryDatabase("CREATE TABLE scms_categories (id BIGINT NOT NULL AUTO_INCREMENT, PRIMARY KEY(id), name VARCHAR(200) NOT NULL, UNIQUE (name));");
 			$this->modules[$this->database_module]->queryDatabase("CREATE TABLE scms_posts (id BIGINT NOT NULL AUTO_INCREMENT, PRIMARY KEY(id), title VARCHAR(200) NOT NULL, details TEXT NOT NULL, filename TEXT NOT NULL, dateposted DATETIME NOT NULL DEFAULT NOW(), author BIGINT NOT NULL, FOREIGN KEY (author) REFERENCES scms_accounts(id), type INT NOT NULL, category BIGINT NOT NULL, FOREIGN KEY (category) REFERENCES scms_categories(id));");
 			$this->modules[$this->database_module]->queryDatabase("CREATE TABLE scms_comments (id BIGINT NOT NULL AUTO_INCREMENT, PRIMARY KEY(id), post BIGINT NOT NULL, FOREIGN KEY (post) REFERENCES scms_posts(id), dateposted DATETIME NOT NULL DEFAULT NOW(), author BIGINT NOT NULL, FOREIGN KEY (author) REFERENCES scms_accounts(id), comment TEXT NOT NULL);");
 			$this->modules[$this->database_module]->queryDatabase("CREATE TABLE scms_files (id BIGINT NOT NULL AUTO_INCREMENT, PRIMARY KEY(id), filename VARCHAR(200) NOT NULL, filedata MEDIUMBLOB NOT NULL, filetype VARCHAR(200) NOT NULL);");
 			
+			// Insert the default values for the site title and description
+			$this->modules[$this->database_module]->queryDatabase("INSERT INTO scms_site (sitetitle, sitedesc) VALUES('Simple CMS', 'A simple CMS system');");
 		}
 		
 		/**
@@ -372,7 +380,32 @@
 		 *
 		 */		
 		public function getPageTitle() {
-			echo "Simple CMS";	
+
+			// Set the initial status
+			$rvalue = Engine::DATABASE_ERROR_COULD_NOT_ACCESS_DATABASE;
+			
+			// Check to ensure that a database module is installed
+			if ($this->isModuleInstalled(Engine::FEATURE_SUPPORT_DATABASE)) {
+				
+				// Query the database to get the site title name
+				$result = $this->modules[$this->database_module]->queryDatabase("SELECT sitetitle FROM scms_site;");
+			}
+			
+			// Check to see if there are results
+			if (count($result) > 0) {
+				
+				// Loop through the results and get the site title name
+				foreach ($result as $resultrow) {
+					$title = $resultrow[0];	
+				}
+				echo $title;
+				$rvalue = Engine::DATABASE_ERROR_NO_ERROR;
+			} else {
+				$rvalue = Engine::DATABASE_ERROR_NO_QUERY_RESULTS;
+			}
+			
+			// Return the result
+			return $rvalue;
 		}
 	
 		/**
@@ -380,7 +413,32 @@
 		 *
 		 */		
 		public function getSiteTitle() {
-			echo "Simple CMS";	
+
+			// Set the initial status
+			$rvalue = Engine::DATABASE_ERROR_COULD_NOT_ACCESS_DATABASE;
+			
+			// Check to ensure that a database module is installed
+			if ($this->isModuleInstalled(Engine::FEATURE_SUPPORT_DATABASE)) {
+				
+				// Query the database to get the site title name
+				$result = $this->modules[$this->database_module]->queryDatabase("SELECT sitetitle FROM scms_site;");
+			}
+			
+			// Check to see if there are results
+			if (count($result) > 0) {
+				
+				// Loop through the results and get the site title name
+				foreach ($result as $resultrow) {
+					$title = $resultrow[0];	
+				}
+				echo $title;
+				$rvalue = Engine::DATABASE_ERROR_NO_ERROR;
+			} else {
+				$rvalue = Engine::DATABASE_ERROR_NO_QUERY_RESULTS;
+			}
+			
+			// Return the result
+			return $rvalue;
 		}
 	
 		/**
@@ -388,7 +446,32 @@
 		 *
 		 */		
 		public function getSiteDescription() {
-			echo "A simple CMS system";	
+
+			// Set the initial status
+			$rvalue = Engine::DATABASE_ERROR_COULD_NOT_ACCESS_DATABASE;
+			
+			// Check to ensure that a database module is installed
+			if ($this->isModuleInstalled(Engine::FEATURE_SUPPORT_DATABASE)) {
+				
+				// Query the database to get the site description name
+				$result = $this->modules[$this->database_module]->queryDatabase("SELECT sitedesc FROM scms_site;");
+			}
+			
+			// Check to see if there are results
+			if (count($result) > 0) {
+				
+				// Loop through the results and get the site description name
+				foreach ($result as $resultrow) {
+					$description = $resultrow[0];	
+				}
+				echo $description;
+				$rvalue = Engine::DATABASE_ERROR_NO_ERROR;
+			} else {
+				$rvalue = Engine::DATABASE_ERROR_NO_QUERY_RESULTS;
+			}
+			
+			// Return the result
+			return $rvalue;
 		}
 	
 		/**
@@ -397,6 +480,76 @@
 		 */		
 		public function getEngineInformation() {
 			echo "Powered by Simple CMS (".Engine::ENGINE_VERSION.")";
+		}
+		
+		/**
+		 * Loads the site details
+		 *
+		 * @return Returns the site details or the error status code
+		 *
+		 */		
+		public function loadDetails() {
+			
+			// Set the initial status
+			$rvalue = Engine::DATABASE_ERROR_COULD_NOT_ACCESS_DATABASE;
+			
+			// Check to ensure that a database module is installed
+			if ($this->isModuleInstalled(Engine::FEATURE_SUPPORT_DATABASE)) {
+				
+				// Query the database to get the site details name
+				$result = $this->modules[$this->database_module]->queryDatabase("SELECT * FROM scms_site;");
+			}
+			
+			// Check to see if there are results
+			if (count($result) > 0) {
+				
+				$returnresult = array();
+				
+				// Loop through the results and get the site details name
+				foreach ($result as $resultrow) {
+					$returnresult['title'] = $resultrow[0];	
+					$returnresult['description'] = $resultrow[1];
+				}
+
+				$rvalue = $returnresult;
+			} else {
+				$rvalue = Engine::DATABASE_ERROR_NO_QUERY_RESULTS;
+			}
+			
+			// Return the result
+			return $rvalue;
+		}
+		
+		/**
+		 * Save the site details
+		 *
+		 * @return Returns the result status code
+		 *
+		 */		
+		public function saveDetails($data) {
+			
+			// Set the initial status
+			$rvalue = Engine::DATABASE_ERROR_COULD_NOT_ACCESS_DATABASE;
+			
+			// Check to ensure that a database module is installed
+			if ($this->isModuleInstalled(Engine::FEATURE_SUPPORT_DATABASE)) {
+
+				// Update the site title
+				$result = $this->modules[$this->database_module]->queryDatabase("UPDATE scms_site SET sitetitle = '".$data['title']."';");
+				
+				// Update the site description
+				$result = $this->modules[$this->database_module]->queryDatabase("UPDATE scms_site SET sitedesc = '".$data['description']."';");
+			}
+			
+			// Check to see if there are results
+			if (count($result) > 0) {
+				$rvalue = Engine::NO_ERROR_STATUS;
+			} else {
+				$rvalue = Engine::DATABASE_ERROR_NO_QUERY_RESULTS;
+			}
+			
+			// Return the result
+			return $rvalue;
 		}
 	
 		/**

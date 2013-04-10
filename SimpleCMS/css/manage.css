@@ -199,7 +199,7 @@ span.buttons
     text-align: center;
 }
 
-button#btn_manage_submit_newtextpost, button#btn_manage_cancel_newtextpost, button#btn_manage_submit_newimagepost, button#btn_manage_cancel_newimagepost
+button#btn_manage_submit_newtextpost, button#btn_manage_cancel_newtextpost, button#btn_manage_submit_newimagepost, button#btn_manage_cancel_newimagepost, button#btn_manage_updatesitedetails
 {
     margin-top: 10px;
 }
@@ -207,4 +207,10 @@ button#btn_manage_submit_newtextpost, button#btn_manage_cancel_newtextpost, butt
 label 
 {
     vertical-align: top;
+}
+
+p > img 
+{
+    width: 16px;
+    height: 16px;
 }
